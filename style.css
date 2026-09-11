@@ -38,6 +38,17 @@ body {
     background-image: radial-gradient(circle at 15% 50%, rgba(88, 166, 255, 0.05), transparent 25%),
                       radial-gradient(circle at 85% 30%, rgba(35, 134, 54, 0.05), transparent 25%);
     background-attachment: fixed;
+    /* App-like behaviors */
+    -webkit-user-select: none;
+    user-select: none;
+    overscroll-behavior-y: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Allow text selection in inputs */
+input, textarea, select {
+    -webkit-user-select: auto;
+    user-select: auto;
 }
 
 /* Glassmorphism Panel */
@@ -55,10 +66,14 @@ body {
 .app-container {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 24px;
     display: flex;
     flex-direction: column;
     gap: 24px;
+    /* iPhone Safe Area (Notch) padding */
+    padding-top: max(24px, env(safe-area-inset-top));
+    padding-bottom: max(24px, env(safe-area-inset-bottom));
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
 }
 
 header {
@@ -471,6 +486,15 @@ header {
 .w-100 { width: 100%; justify-content: center; }
 
 @media (max-width: 768px) {
+    header { padding: 12px 16px !important; }
+    .glass-panel { padding: 16px; }
+    .timer-display { font-size: 4rem; }
+    .dashboard-grid { gap: 16px; }
+    .tabs-nav { width: 100%; overflow-x: auto; white-space: nowrap; flex-wrap: nowrap; padding-bottom: 4px; }
+    .tabs-nav::-webkit-scrollbar { display: none; }
+    .tm-stats-grid { grid-template-columns: 1fr; }
+    .tm-task-item { flex-direction: column; align-items: stretch; }
+    .tm-task-actions { align-self: flex-end; margin-top: 8px; }
     .icon-selector { grid-template-columns: repeat(4, 1fr); }
     .form-row { flex-direction: column; gap: 0; }
 }
