@@ -124,7 +124,8 @@ const btnStartTimer = document.getElementById('btnStartTimer');
 const btnPauseTimer = document.getElementById('btnPauseTimer');
 const btnResetTimer = document.getElementById('btnResetTimer');
 const modeBtns = document.querySelectorAll('.mode-btn');
-const alarmSound = document.getElementById('alarmSound');
+const pomodoroSound = document.getElementById('pomodoroSound');
+const breakSound = document.getElementById('breakSound');
 
 const statTodayFocus = document.getElementById('statTodayFocus');
 const statTotalTasks = document.getElementById('statTotalTasks');
@@ -150,14 +151,21 @@ if ('Notification' in window && Notification.permission !== 'granted' && Notific
     Notification.requestPermission();
 }
 
-function playAlarm() {
-    if (alarmSound) alarmSound.play().catch(e => console.log("Audio play blocked by browser"));
+function playAlarm(mode) {
+    let soundToPlay = mode === 'pomodoro' ? pomodoroSound : breakSound;
+    if (soundToPlay) {
+        // Chuông pomodoro nhẹ hơn (0.6), chuông hết giờ nghỉ to hơn (1.0)
+        soundToPlay.volume = mode === 'pomodoro' ? 0.6 : 1.0;
+        soundToPlay.play().catch(e => console.log("Audio play blocked by browser"));
+    }
+    
     if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 200, 100, 400]);
     timerSection.classList.add('shake');
     setTimeout(() => timerSection.classList.remove('shake'), 1000);
     
     if ('Notification' in window && Notification.permission === 'granted') {
-        new Notification("LifeTracker", { body: "Phiên đếm giờ đã hoàn thành!", icon: "./icon.svg" });
+        const msg = mode === 'pomodoro' ? "Đã xong thời gian tập trung! Nghỉ giải lao thôi!" : "Hết giờ nghỉ! Quay lại làm việc nào!";
+        new Notification("LifeTracker", { body: msg, icon: "./icon.svg" });
     }
 }
 
@@ -277,7 +285,7 @@ function startTimer() {
                 saveData();
             }
             
-            playAlarm();
+            playAlarm(currentModeType);
             
             // Auto switch mode
             if (currentModeType === 'pomodoro') {
