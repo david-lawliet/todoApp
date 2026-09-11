@@ -3,12 +3,12 @@ import { getFirestore, doc, setDoc, collection, getDocs, writeBatch } from "http
 
 // TODO: Thay thông tin cấu hình Firebase của bạn vào đây
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyB94Y5-g6kXg4Gwz1VNsWn1rCSccZdD5YU",
+    authDomain: "todo-app-af1ca.firebaseapp.com",
+    projectId: "todo-app-af1ca",
+    storageBucket: "todo-app-af1ca.firebasestorage.app",
+    messagingSenderId: "391885202103",
+    appId: "1:391885202103:web:cd487d455e0fdc395ce332"
 };
 
 // Khởi tạo Firebase
@@ -41,7 +41,7 @@ async function loadData() {
     if (stored) {
         try {
             appData = JSON.parse(stored);
-        } catch(e) {
+        } catch (e) {
             console.error("Failed to parse data");
         }
     }
@@ -84,7 +84,7 @@ async function loadData() {
                 renderCalendar();
                 if (typeof renderTmTasks === "function") renderTmTasks();
             }
-        } catch(e) {
+        } catch (e) {
             console.error("Failed to fetch data from Firebase (Có thể cấu hình chưa đúng)", e);
         }
     }
@@ -93,7 +93,7 @@ async function loadData() {
 async function saveData() {
     // Lưu vào LocalStorage
     localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
-    
+
     // Lưu ngày hiện tại lên Firebase
     try {
         if (firebaseConfig.projectId !== "YOUR_PROJECT_ID") {
@@ -158,11 +158,11 @@ function playAlarm(mode) {
         soundToPlay.volume = mode === 'pomodoro' ? 0.6 : 1.0;
         soundToPlay.play().catch(e => console.log("Audio play blocked by browser"));
     }
-    
+
     if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 200, 100, 400]);
     timerSection.classList.add('shake');
     setTimeout(() => timerSection.classList.remove('shake'), 1000);
-    
+
     if ('Notification' in window && Notification.permission === 'granted') {
         const msg = mode === 'pomodoro' ? "Đã xong thời gian tập trung! Nghỉ giải lao thôi!" : "Hết giờ nghỉ! Quay lại làm việc nào!";
         new Notification("LifeTracker", { body: msg, icon: "./icon.svg" });
@@ -173,7 +173,7 @@ function playAlarm(mode) {
 function renderTodos() {
     const todayData = appData.history[todayStr];
     todoList.innerHTML = '';
-    
+
     // Sort tasks by time
     todayData.todos.sort((a, b) => {
         if (!a.time) return 1;
@@ -185,12 +185,12 @@ function renderTodos() {
 
     todayData.todos.forEach(task => {
         if (task.completed) completedCount++;
-        
+
         const li = document.createElement('li');
         li.className = `todo-item ${task.completed ? 'completed' : ''}`;
-        
+
         const catMap = { work: 'Làm việc', study: 'Học tập', personal: 'Cá nhân', health: 'Sức khỏe' };
-        
+
         li.innerHTML = `
             <div class="checkbox" onclick="toggleTask('${task.id}')">
                 <i class="fa-solid fa-check"></i>
@@ -211,7 +211,7 @@ function renderTodos() {
 
     const total = todayData.todos.length;
     todoProgressText.innerText = `${completedCount}/${total} Hoàn thành`;
-    todoProgressBar.style.width = total === 0 ? '0%' : `${(completedCount/total)*100}%`;
+    todoProgressBar.style.width = total === 0 ? '0%' : `${(completedCount / total) * 100}%`;
 }
 
 function addTask(e) {
@@ -222,7 +222,7 @@ function addTask(e) {
         alert("Vui lòng nhập giờ và nội dung!");
         return;
     }
-    
+
     appData.history[todayStr].todos.push({
         id: Date.now().toString(),
         text,
@@ -230,13 +230,13 @@ function addTask(e) {
         category: todoCategory.value,
         completed: false
     });
-    
+
     todoInput.value = '';
     saveData();
     renderTodos();
 }
 
-window.toggleTask = function(id) {
+window.toggleTask = function (id) {
     const task = appData.history[todayStr].todos.find(t => t.id === id);
     if (task) {
         task.completed = !task.completed;
@@ -245,7 +245,7 @@ window.toggleTask = function(id) {
     }
 }
 
-window.deleteTask = function(id) {
+window.deleteTask = function (id) {
     appData.history[todayStr].todos = appData.history[todayStr].todos.filter(t => t.id !== id);
     saveData();
     renderTodos();
@@ -269,6 +269,11 @@ function updateTimerDisplay() {
 
 function startTimer() {
     if (isRunning) return;
+
+    // Mở khóa âm thanh (Bypass Safari/Chrome Autoplay Policy)
+    if (pomodoroSound) { pomodoroSound.muted = true; pomodoroSound.play().then(() => { pomodoroSound.pause(); pomodoroSound.muted = false; }).catch(() => { }); }
+    if (breakSound) { breakSound.muted = true; breakSound.play().then(() => { breakSound.pause(); breakSound.muted = false; }).catch(() => { }); }
+
     isRunning = true;
     timerStatus.innerText = `Đang chạy: ${currentModeType === 'pomodoro' ? 'Pomodoro' : 'Nghỉ ngơi'}`;
     timerInterval = setInterval(() => {
@@ -278,22 +283,22 @@ function startTimer() {
         } else {
             clearInterval(timerInterval);
             isRunning = false;
-            
+
             // Save focus time if it was pomodoro
             if (currentModeType === 'pomodoro') {
                 appData.history[todayStr].focusMinutes += currentModeMinutes;
                 saveData();
             }
-            
+
             playAlarm(currentModeType);
-            
+
             // Auto switch mode
             if (currentModeType === 'pomodoro') {
                 switchMode('shortBreak');
             } else {
                 switchMode('pomodoro');
             }
-            
+
             // Auto start next phase
             setTimeout(() => {
                 startTimer();
@@ -305,7 +310,7 @@ function startTimer() {
 function switchMode(modeString) {
     modeBtns.forEach(b => b.classList.remove('active'));
     const targetBtn = Array.from(modeBtns).find(b => b.getAttribute('data-mode') === modeString);
-    if(targetBtn) {
+    if (targetBtn) {
         targetBtn.classList.add('active');
         currentModeMinutes = parseInt(targetBtn.getAttribute('data-time'));
         currentModeType = modeString;
@@ -351,57 +356,57 @@ function updateAnalytics() {
 // --- Calendar Logic ---
 function renderCalendar() {
     calendarGrid.innerHTML = '';
-    
+
     calendarMonthYearText.innerText = `Tháng ${currentViewMonth + 1}, ${currentViewYear}`;
-    
+
     // First day of the month (0 = Sunday, 1 = Monday, etc.)
     const firstDayObj = new Date(currentViewYear, currentViewMonth, 1);
     let startDayOfWeek = firstDayObj.getDay() - 1; // Adjust to make Monday = 0
     if (startDayOfWeek === -1) startDayOfWeek = 6; // Sunday becomes 6
-    
+
     // Number of days in the month
     const daysInMonth = new Date(currentViewYear, currentViewMonth + 1, 0).getDate();
-    
+
     // Empty cells before day 1
     for (let i = 0; i < startDayOfWeek; i++) {
         const emptyCell = document.createElement('div');
         emptyCell.className = 'calendar-cell empty';
         calendarGrid.appendChild(emptyCell);
     }
-    
+
     // Days
     for (let day = 1; day <= daysInMonth; day++) {
         const y = currentViewYear;
         const m = String(currentViewMonth + 1).padStart(2, '0');
         const d = String(day).padStart(2, '0');
         const dateStr = `${y}-${m}-${d}`;
-        
+
         const cell = document.createElement('div');
         cell.className = 'calendar-cell';
         cell.innerText = day;
-        
+
         if (dateStr === todayStr) {
             cell.classList.add('today');
         }
-        
+
         let level = 0;
-        
+
         if (appData.history[dateStr]) {
             const data = appData.history[dateStr];
             const completed = data.todos.filter(t => t.completed).length;
             const focus = data.focusMinutes;
-            
-            let activityScore = completed * 10 + focus; 
-            
+
+            let activityScore = completed * 10 + focus;
+
             if (activityScore > 0 && activityScore <= 20) level = 1;
             else if (activityScore > 20 && activityScore <= 50) level = 2;
             else if (activityScore > 50 && activityScore <= 100) level = 3;
             else if (activityScore > 100) level = 4;
         }
-        
+
         cell.classList.add(`level-${level}`);
         cell.addEventListener('click', () => showHistory(dateStr));
-        
+
         calendarGrid.appendChild(cell);
     }
 }
@@ -422,19 +427,19 @@ btnNextMonth.addEventListener('click', () => {
 // --- History Modal ---
 function showHistory(dateStr) {
     const data = appData.history[dateStr] || { todos: [], focusMinutes: 0 };
-    
+
     modalDateTitle.innerText = `Lịch sử: ${dateStr}`;
     modalFocusTime.innerText = `${data.focusMinutes} phút`;
-    
+
     const total = data.todos.length;
     const completed = data.todos.filter(t => t.completed);
     const pending = data.todos.filter(t => !t.completed);
-    
-    modalCompletion.innerText = total === 0 ? '0%' : `${Math.round((completed.length/total)*100)}%`;
-    
+
+    modalCompletion.innerText = total === 0 ? '0%' : `${Math.round((completed.length / total) * 100)}%`;
+
     function renderMiniList(container, arr) {
         container.innerHTML = '';
-        if(arr.length === 0) {
+        if (arr.length === 0) {
             container.innerHTML = '<p style="color:var(--text-muted); font-size:0.9rem;">Trống</p>';
             return;
         }
@@ -455,10 +460,10 @@ function showHistory(dateStr) {
             container.appendChild(li);
         });
     }
-    
+
     renderMiniList(modalCompletedTasks, completed);
     renderMiniList(modalPendingTasks, pending);
-    
+
     historyModal.classList.add('active');
 }
 
@@ -474,7 +479,7 @@ btnExport.addEventListener('click', () => {
     const dataStr = JSON.stringify(appData, null, 2);
     const blob = new Blob([dataStr], { type: "application/json" });
     const url = URL.createObjectURL(blob);
-    
+
     const a = document.createElement('a');
     a.href = url;
     a.download = `LifeTracker_Backup_${getTodayStr()}.json`;
@@ -485,14 +490,14 @@ btnExport.addEventListener('click', () => {
 btnImport.addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    
+
     const reader = new FileReader();
-    reader.onload = async function(event) {
+    reader.onload = async function (event) {
         try {
             const importedData = JSON.parse(event.target.result);
             if (importedData && importedData.history) {
                 appData = importedData;
-                
+
                 // Đồng bộ toàn bộ dữ liệu import lên Firebase
                 if (firebaseConfig.projectId !== "YOUR_PROJECT_ID") {
                     try {
@@ -502,7 +507,7 @@ btnImport.addEventListener('change', async (e) => {
                             batch.set(docRef, appData.history[date]);
                         });
                         await batch.commit();
-                    } catch(err) {
+                    } catch (err) {
                         console.error("Lỗi đồng bộ Firebase khi import", err);
                     }
                 }
@@ -533,7 +538,7 @@ tabBtns.forEach(btn => {
     btn.addEventListener('click', () => {
         tabBtns.forEach(b => b.classList.remove('active'));
         tabContents.forEach(c => c.classList.remove('active'));
-        
+
         btn.classList.add('active');
         document.getElementById(btn.getAttribute('data-target')).classList.add('active');
     });
@@ -563,13 +568,13 @@ btnTmCancelModal.addEventListener('click', closeTmModal);
 
 function renderTmTasks() {
     tmTaskList.innerHTML = '';
-    
+
     let filteredTasks = appData.tasks || [];
-    
+
     const searchVal = tmSearchInput.value.toLowerCase();
     const statusVal = tmFilterStatus.value;
     const priorityVal = tmFilterPriority.value;
-    
+
     if (searchVal) {
         filteredTasks = filteredTasks.filter(t => t.title.toLowerCase().includes(searchVal) || t.desc.toLowerCase().includes(searchVal));
     }
@@ -587,18 +592,18 @@ function renderTmTasks() {
     filteredTasks.forEach(task => {
         const item = document.createElement('div');
         item.className = 'tm-task-item';
-        
+
         const iconMap = {
             'Tài liệu': 'fa-file-lines', 'Mua sắm': 'fa-cart-shopping', 'Học tập': 'fa-book-open',
             'Sức khỏe': 'fa-heart-pulse', 'Công việc': 'fa-desktop', 'Du lịch': 'fa-plane',
             'Lịch trình': 'fa-calendar-days', 'Thời gian': 'fa-clock'
         };
         const iconClass = iconMap[task.icon] || 'fa-list';
-        
+
         let statusClass = 'status-chualam';
         if (task.status === 'Đang làm') statusClass = 'status-danglam';
         else if (task.status === 'Hoàn thành') statusClass = 'status-hoanthanh';
-        
+
         let priorityClass = 'priority-trungbinh';
         if (task.priority === 'Cao') priorityClass = 'priority-cao';
         else if (task.priority === 'Thấp') priorityClass = 'priority-thap';
@@ -632,7 +637,7 @@ function updateTmStats() {
     const total = tasks.length;
     const inProgress = tasks.filter(t => t.status === 'Đang làm').length;
     const completed = tasks.filter(t => t.status === 'Hoàn thành').length;
-    
+
     let overdue = 0;
     const now = new Date();
     tasks.forEach(t => {
@@ -649,7 +654,7 @@ function updateTmStats() {
 
 tmAddTaskForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    
+
     const title = document.getElementById('tmTaskTitle').value;
     const icon = document.querySelector('input[name="tmTaskIcon"]:checked').value;
     const desc = document.getElementById('tmTaskDesc').value;
@@ -663,15 +668,15 @@ tmAddTaskForm.addEventListener('submit', (e) => {
         title, icon, desc, status, priority, startDate, deadline
     };
 
-    if(!appData.tasks) appData.tasks = [];
+    if (!appData.tasks) appData.tasks = [];
     appData.tasks.unshift(newTask);
     saveData();
     renderTmTasks();
     closeTmModal();
 });
 
-window.deleteTmTask = function(id) {
-    if(confirm("Bạn có chắc muốn xóa công việc này?")) {
+window.deleteTmTask = function (id) {
+    if (confirm("Bạn có chắc muốn xóa công việc này?")) {
         appData.tasks = appData.tasks.filter(t => t.id !== id);
         saveData();
         renderTmTasks();

@@ -1,29 +1,33 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lifetime Productivity Tracker</title>
-    
+
     <!-- PWA Manifest & Theme Color -->
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#0d1117">
-    
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- Styles -->
     <link rel="stylesheet" href="./style.css">
 </head>
+
 <body>
     <!-- Sound for Pomodoro -->
-    <audio id="pomodoroSound" src="https://assets.mixkit.co/sfx/preview/mixkit-positive-notification-951.mp3" preload="auto"></audio>
-    <audio id="breakSound" src="https://assets.mixkit.co/sfx/preview/mixkit-attention-bell-ding-586.mp3" preload="auto"></audio>
+    <audio id="pomodoroSound" src="https://assets.mixkit.co/sfx/preview/mixkit-positive-notification-951.mp3"
+        preload="auto"></audio>
+    <audio id="breakSound" src="https://assets.mixkit.co/sfx/preview/mixkit-attention-bell-ding-586.mp3"
+        preload="auto"></audio>
 
     <div class="app-container">
         <!-- Header -->
@@ -33,7 +37,8 @@
                 <h1>LifeTracker</h1>
             </div>
             <div class="actions">
-                <button id="btnExport" class="btn btn-outline"><i class="fa-solid fa-download"></i> Sao lưu (Export)</button>
+                <button id="btnExport" class="btn btn-outline"><i class="fa-solid fa-download"></i> Sao lưu
+                    (Export)</button>
                 <label for="btnImport" class="btn btn-outline">
                     <i class="fa-solid fa-upload"></i> Khôi phục (Import)
                     <input type="file" id="btnImport" accept=".json" hidden>
@@ -43,13 +48,15 @@
 
         <!-- Tabs Navigation -->
         <nav class="tabs-nav">
-            <button class="tab-btn active" data-target="tabLifeTracker"><i class="fa-solid fa-stopwatch"></i> LifeTracker</button>
-            <button class="tab-btn" data-target="tabTaskManager"><i class="fa-solid fa-list-check"></i> Quản lý Task</button>
+            <button class="tab-btn active" data-target="tabLifeTracker"><i class="fa-solid fa-stopwatch"></i>
+                LifeTracker</button>
+            <button class="tab-btn" data-target="tabTaskManager"><i class="fa-solid fa-list-check"></i> Quản lý
+                Task</button>
         </nav>
 
         <!-- Main Content: LifeTracker Tab -->
         <main class="dashboard-grid tab-content active" id="tabLifeTracker">
-            
+
             <!-- Left Column: Daily Planner & Timer -->
             <section class="left-col">
                 <!-- Pomodoro / Timer -->
@@ -58,9 +65,12 @@
                     <div class="timer-display" id="timerDisplay">25:00</div>
                     <p class="timer-status" id="timerStatus">Sẵn sàng (Tự động lặp lại)</p>
                     <div class="timer-controls">
-                        <button id="btnStartTimer" class="btn btn-primary"><i class="fa-solid fa-play"></i> Bắt đầu</button>
-                        <button id="btnPauseTimer" class="btn btn-secondary"><i class="fa-solid fa-pause"></i> Tạm dừng</button>
-                        <button id="btnResetTimer" class="btn btn-danger"><i class="fa-solid fa-rotate-right"></i> Dừng hẳn</button>
+                        <button id="btnStartTimer" class="btn btn-primary"><i class="fa-solid fa-play"></i> Bắt
+                            đầu</button>
+                        <button id="btnPauseTimer" class="btn btn-secondary"><i class="fa-solid fa-pause"></i> Tạm
+                            dừng</button>
+                        <button id="btnResetTimer" class="btn btn-danger"><i class="fa-solid fa-rotate-right"></i> Dừng
+                            hẳn</button>
                     </div>
                     <div class="timer-modes">
                         <button class="mode-btn active" data-time="25" data-mode="pomodoro">Pomodoro (25m)</button>
@@ -83,14 +93,14 @@
                         </select>
                         <button type="submit" class="btn btn-primary"><i class="fa-solid fa-plus"></i></button>
                     </form>
-                    
+
                     <div class="todo-stats">
                         <span id="todoProgressText">0/0 Hoàn thành</span>
                         <div class="progress-bar-container">
                             <div class="progress-bar" id="todoProgressBar"></div>
                         </div>
                     </div>
-                    
+
                     <ul id="todoList" class="todo-list">
                         <!-- Tasks will be rendered here -->
                     </ul>
@@ -124,7 +134,7 @@
                         <h2 id="calendarMonthYearText">Tháng 9, 2026</h2>
                         <button class="btn-icon" id="btnNextMonth"><i class="fa-solid fa-chevron-right"></i></button>
                     </div>
-                    
+
                     <div class="calendar-days-header">
                         <span>T2</span><span>T3</span><span>T4</span><span>T5</span><span>T6</span><span>T7</span><span>CN</span>
                     </div>
@@ -142,7 +152,8 @@
                     <h2>Quản lý công việc</h2>
                     <p>Theo dõi, quản lý và hoàn thành công việc hiệu quả mỗi ngày.</p>
                 </div>
-                <button class="btn btn-primary" id="btnShowAddTaskModal"><i class="fa-solid fa-plus"></i> Thêm công việc</button>
+                <button class="btn btn-primary" id="btnShowAddTaskModal"><i class="fa-solid fa-plus"></i> Thêm công
+                    việc</button>
             </div>
 
             <div class="tm-stats-grid">
@@ -221,10 +232,10 @@
                     <p>Thời gian tập trung: <strong id="modalFocusTime">0 phút</strong></p>
                     <p>Mức độ hoàn thành: <strong id="modalCompletion">0%</strong></p>
                 </div>
-                
+
                 <h3 class="modal-section-title">Đã hoàn thành</h3>
                 <ul id="modalCompletedTasks" class="todo-list read-only"></ul>
-                
+
                 <h3 class="modal-section-title">Chưa hoàn thành</h3>
                 <ul id="modalPendingTasks" class="todo-list read-only"></ul>
             </div>
@@ -248,14 +259,32 @@
                     <div class="form-group">
                         <label>Biểu tượng công việc</label>
                         <div class="icon-selector">
-                            <label class="icon-option"><input type="radio" name="tmTaskIcon" value="Tài liệu" checked><div class="icon-box"><i class="fa-solid fa-file-lines"></i><span>Tài liệu</span></div></label>
-                            <label class="icon-option"><input type="radio" name="tmTaskIcon" value="Mua sắm"><div class="icon-box"><i class="fa-solid fa-cart-shopping"></i><span>Mua sắm</span></div></label>
-                            <label class="icon-option"><input type="radio" name="tmTaskIcon" value="Học tập"><div class="icon-box"><i class="fa-solid fa-book-open"></i><span>Học tập</span></div></label>
-                            <label class="icon-option"><input type="radio" name="tmTaskIcon" value="Sức khỏe"><div class="icon-box"><i class="fa-solid fa-heart-pulse"></i><span>Sức khỏe</span></div></label>
-                            <label class="icon-option"><input type="radio" name="tmTaskIcon" value="Công việc"><div class="icon-box"><i class="fa-solid fa-desktop"></i><span>Công việc</span></div></label>
-                            <label class="icon-option"><input type="radio" name="tmTaskIcon" value="Du lịch"><div class="icon-box"><i class="fa-solid fa-plane"></i><span>Du lịch</span></div></label>
-                            <label class="icon-option"><input type="radio" name="tmTaskIcon" value="Lịch trình"><div class="icon-box"><i class="fa-solid fa-calendar-days"></i><span>Lịch trình</span></div></label>
-                            <label class="icon-option"><input type="radio" name="tmTaskIcon" value="Thời gian"><div class="icon-box"><i class="fa-solid fa-clock"></i><span>Thời gian</span></div></label>
+                            <label class="icon-option"><input type="radio" name="tmTaskIcon" value="Tài liệu" checked>
+                                <div class="icon-box"><i class="fa-solid fa-file-lines"></i><span>Tài liệu</span></div>
+                            </label>
+                            <label class="icon-option"><input type="radio" name="tmTaskIcon" value="Mua sắm">
+                                <div class="icon-box"><i class="fa-solid fa-cart-shopping"></i><span>Mua sắm</span>
+                                </div>
+                            </label>
+                            <label class="icon-option"><input type="radio" name="tmTaskIcon" value="Học tập">
+                                <div class="icon-box"><i class="fa-solid fa-book-open"></i><span>Học tập</span></div>
+                            </label>
+                            <label class="icon-option"><input type="radio" name="tmTaskIcon" value="Sức khỏe">
+                                <div class="icon-box"><i class="fa-solid fa-heart-pulse"></i><span>Sức khỏe</span></div>
+                            </label>
+                            <label class="icon-option"><input type="radio" name="tmTaskIcon" value="Công việc">
+                                <div class="icon-box"><i class="fa-solid fa-desktop"></i><span>Công việc</span></div>
+                            </label>
+                            <label class="icon-option"><input type="radio" name="tmTaskIcon" value="Du lịch">
+                                <div class="icon-box"><i class="fa-solid fa-plane"></i><span>Du lịch</span></div>
+                            </label>
+                            <label class="icon-option"><input type="radio" name="tmTaskIcon" value="Lịch trình">
+                                <div class="icon-box"><i class="fa-solid fa-calendar-days"></i><span>Lịch trình</span>
+                                </div>
+                            </label>
+                            <label class="icon-option"><input type="radio" name="tmTaskIcon" value="Thời gian">
+                                <div class="icon-box"><i class="fa-solid fa-clock"></i><span>Thời gian</span></div>
+                            </label>
                         </div>
                     </div>
 
@@ -315,4 +344,5 @@
         }
     </script>
 </body>
+
 </html>
