@@ -38,14 +38,7 @@
                 <i class="fa-solid fa-layer-group"></i>
                 <h1>Todo</h1>
             </div>
-            <div class="actions">
-                <button id="btnExport" class="btn btn-outline"><i class="fa-solid fa-download"></i> Sao lưu
-                    (Export)</button>
-                <label for="btnImport" class="btn btn-outline">
-                    <i class="fa-solid fa-upload"></i> Khôi phục (Import)
-                    <input type="file" id="btnImport" accept=".json" hidden>
-                </label>
-            </div>
+
         </header>
 
 
@@ -326,6 +319,16 @@
             </div>
         </div>
     </div>
+
+    <!-- Footer Actions -->
+    <div class="footer-actions">
+        <button id="btnExport" class="btn btn-outline"><i class="fa-solid fa-download"></i> Sao lưu</button>
+        <label for="btnImport" class="btn btn-outline">
+            <i class="fa-solid fa-upload"></i> Khôi phục
+            <input type="file" id="btnImport" accept=".json" hidden>
+        </label>
+    </div>
+</div>
 
     <script type="module" src="./app.js"></script>
     <script>
