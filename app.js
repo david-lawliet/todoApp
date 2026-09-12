@@ -262,6 +262,7 @@ let timeLeft = 25 * 60;
 let isRunning = false;
 let currentModeMinutes = 25;
 let currentModeType = 'pomodoro';
+let endTime = null;
 
 function updateTimerDisplay() {
     const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
@@ -277,15 +278,27 @@ function startTimer() {
     if (pomodoroSound) { pomodoroSound.muted = true; pomodoroSound.play().then(() => { pomodoroSound.pause(); pomodoroSound.currentTime = 0; pomodoroSound.muted = false; }).catch(() => { }); }
     if (breakSound) { breakSound.muted = true; breakSound.play().then(() => { breakSound.pause(); breakSound.currentTime = 0; breakSound.muted = false; }).catch(() => { }); }
 
+    const keepAliveSound = document.getElementById('keepAliveSound');
+    if (keepAliveSound) { keepAliveSound.play().catch(() => {}); }
+
     isRunning = true;
+    endTime = Date.now() + (timeLeft * 1000);
     timerStatus.innerText = `Đang chạy: ${currentModeType === 'pomodoro' ? 'Pomodoro' : 'Nghỉ ngơi'}`;
     timerInterval = setInterval(() => {
-        if (timeLeft > 0) {
-            timeLeft--;
-            updateTimerDisplay();
+        let now = Date.now();
+        let newTimeLeft = Math.ceil((endTime - now) / 1000);
+        
+        if (newTimeLeft > 0) {
+            if (newTimeLeft !== timeLeft) {
+                timeLeft = newTimeLeft;
+                updateTimerDisplay();
+            }
         } else {
+            timeLeft = 0;
+            updateTimerDisplay();
             clearInterval(timerInterval);
             isRunning = false;
+            if (keepAliveSound) keepAliveSound.pause();
 
             // Save focus time if it was pomodoro
             if (currentModeType === 'pomodoro') {
@@ -336,6 +349,8 @@ function switchMode(modeString, specificTime = null) {
 function pauseTimer() {
     isRunning = false;
     clearInterval(timerInterval);
+    const keepAliveSound = document.getElementById('keepAliveSound');
+    if (keepAliveSound) keepAliveSound.pause();
     timerStatus.innerText = "Đã tạm dừng";
     updateTimerDisplay();
 }
@@ -343,6 +358,8 @@ function pauseTimer() {
 function resetTimerCore() {
     isRunning = false;
     clearInterval(timerInterval);
+    const keepAliveSound = document.getElementById('keepAliveSound');
+    if (keepAliveSound) { keepAliveSound.pause(); keepAliveSound.currentTime = 0; }
     timeLeft = currentModeMinutes * 60;
     timerStatus.innerText = "Sẵn sàng (Tự động lặp lại)";
     updateTimerDisplay();

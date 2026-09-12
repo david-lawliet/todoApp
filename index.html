@@ -29,6 +29,8 @@
     <!-- Sound for Pomodoro -->
     <audio id="pomodoroSound" src="./universfield-alarm-clock-ringing-229175.mp3" preload="auto"></audio>
     <audio id="breakSound" src="./universfield-digital-alarm-clock-02-151919.mp3" preload="auto"></audio>
+    <!-- Hack iOS Background Execution -->
+    <audio id="keepAliveSound" src="./silence.wav" loop preload="auto"></audio>
 
     <div class="app-container">
         <!-- Header -->
@@ -334,7 +336,7 @@
     </div>
 </div>
 
-    <script type="module" src="./app.js?v=13"></script>
+    <script type="module" src="./app.js?v=14"></script>
     <script>
         // Service Worker Registration for PWA
         if ('serviceWorker' in navigator) {
