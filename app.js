@@ -208,9 +208,23 @@ function playAlarm(mode) {
     timerSection.classList.add('shake');
     setTimeout(() => timerSection.classList.remove('shake'), 1000);
 
+    // Trigger Push Notification
     if ('Notification' in window && Notification.permission === 'granted') {
-        const msg = mode === 'pomodoro' ? "Đã xong thời gian tập trung! Nghỉ giải lao thôi!" : "Hết giờ nghỉ! Quay lại làm việc nào!";
-        new Notification("LifeTracker", { body: msg, icon: "./icon.svg" });
+        const title = mode === 'pomodoro' ? 'Hết giờ Tập trung!' : 'Hết giờ Nghỉ ngơi!';
+        const body = mode === 'pomodoro' ? 'Đã hoàn thành Pomodoro, nghỉ ngơi thôi!' : 'Đã hết giờ nghỉ, quay lại làm việc nào!';
+        
+        if (navigator.serviceWorker) {
+            navigator.serviceWorker.ready.then(function(registration) {
+                registration.showNotification(title, {
+                    body: body,
+                    icon: './app-logo.png',
+                    vibrate: [200, 100, 200, 100, 200, 100, 200],
+                    requireInteraction: true
+                });
+            });
+        } else {
+            new Notification(title, { body: body, icon: './app-logo.png' });
+        }
     }
 }
 
@@ -315,6 +329,11 @@ function updateTimerDisplay() {
 
 function startTimer() {
     if (isRunning) return;
+
+    // Request Notification permission
+    if ('Notification' in window && Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+        Notification.requestPermission();
+    }
 
     // Mở khóa âm thanh (Bypass Safari/Chrome Autoplay Policy)
     if (pomodoroSound) { pomodoroSound.muted = true; pomodoroSound.play().then(() => { pomodoroSound.pause(); pomodoroSound.currentTime = 0; pomodoroSound.muted = false; }).catch(() => { }); }
