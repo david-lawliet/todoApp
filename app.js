@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
 import { getFirestore, doc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
-import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 
 // TODO: Thay thông tin cấu hình Firebase của bạn vào đây
 const firebaseConfig = {
@@ -16,18 +16,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
-const provider = new GoogleAuthProvider();
 let currentUser = null;
-
-// Handle redirect login result for mobile
-getRedirectResult(auth).then((result) => {
-    if (result) {
-        console.log("Logged in via redirect");
-    }
-}).catch((error) => {
-    console.error("Lỗi đăng nhập chuyển hướng:", error);
-    alert("Đăng nhập thất bại, vui lòng thử lại.");
-});
 
 // --- State Management ---
 let appData = {
@@ -983,34 +972,109 @@ if (btnAcceptRollover) btnAcceptRollover.addEventListener('click', () => process
 // UI Elements cho Auth
 const btnLogin = document.getElementById('btnLogin');
 const userAvatar = document.getElementById('userAvatar');
+const authModal = document.getElementById('authModal');
+const btnCloseAuthModal = document.getElementById('btnCloseAuthModal');
+const authEmail = document.getElementById('authEmail');
+const authPassword = document.getElementById('authPassword');
+const btnAuthLogin = document.getElementById('btnAuthLogin');
+const btnAuthRegister = document.getElementById('btnAuthRegister');
 
 if (btnLogin) {
     btnLogin.addEventListener('click', () => {
         if (currentUser) {
             signOut(auth);
         } else {
-            signInWithRedirect(auth, provider);
+            authModal.classList.add('active');
         }
     });
 }
 
+if (btnCloseAuthModal) {
+    btnCloseAuthModal.addEventListener('click', () => {
+        authModal.classList.remove('active');
+    });
+}
+
+if (btnAuthLogin) {
+    btnAuthLogin.addEventListener('click', () => {
+        const email = authEmail.value.trim();
+        const password = authPassword.value;
+        if (!email || !password) return alert('Vui lòng nhập đầy đủ Email và Mật khẩu.');
+        
+        btnAuthLogin.innerHTML = 'Đang xử lý...';
+        signInWithEmailAndPassword(auth, email, password)
+            .then(() => {
+                authModal.classList.remove('active');
+                authEmail.value = '';
+                authPassword.value = '';
+                btnAuthLogin.innerHTML = 'Đang nhập';
+            })
+            .catch(error => {
+                console.error("Lỗi đăng nhập:", error);
+                alert("Đăng nhập thất bại. Vui lòng kiểm tra lại tài khoản và mật khẩu.");
+                btnAuthLogin.innerHTML = 'Đăng nhập';
+            });
+    });
+}
+
+if (btnAuthRegister) {
+    btnAuthRegister.addEventListener('click', () => {
+        const email = authEmail.value.trim();
+        const password = authPassword.value;
+        if (!email || !password) return alert('Vui lòng nhập đầy đủ Email và Mật khẩu.');
+        if (password.length < 6) return alert('Mật khẩu phải có ít nhất 6 ký tự.');
+        
+        btnAuthRegister.innerHTML = 'Đang xử lý...';
+        createUserWithEmailAndPassword(auth, email, password)
+            .then(async (userCredential) => {
+                const user = userCredential.user;
+                const displayName = email.split('@')[0];
+                const avatarUrl = `https://ui-avatars.com/api/?name=${displayName}&background=random&color=fff`;
+                
+                await updateProfile(user, {
+                    displayName: displayName,
+                    photoURL: avatarUrl
+                });
+                
+                authModal.classList.remove('active');
+                authEmail.value = '';
+                authPassword.value = '';
+                btnAuthRegister.innerHTML = 'Đăng ký tài khoản mới';
+            })
+            .catch(error => {
+                console.error("Lỗi đăng ký:", error);
+                alert("Đăng ký thất bại. Email có thể đã được sử dụng hoặc không hợp lệ.");
+                btnAuthRegister.innerHTML = 'Đăng ký tài khoản mới';
+            });
+    });
+}
+
 onAuthStateChanged(auth, async (user) => {
+    const userNameEl = document.getElementById('userName');
     if (user) {
         currentUser = user;
         if (btnLogin) btnLogin.innerHTML = '<i class="fa-solid fa-right-from-bracket"></i> Đăng xuất';
         if (userAvatar) {
-            userAvatar.src = user.photoURL;
+            userAvatar.src = user.photoURL || `https://ui-avatars.com/api/?name=${user.email.split('@')[0]}&background=random&color=fff`;
             userAvatar.style.display = 'block';
+        }
+        if (userNameEl) {
+            userNameEl.innerText = user.displayName || user.email.split('@')[0];
         }
         // Load data from Cloud for this user
         await loadData(true);
     } else {
         currentUser = null;
-        if (btnLogin) btnLogin.innerHTML = '<i class="fa-brands fa-google"></i> Đăng nhập';
+        if (btnLogin) btnLogin.innerHTML = '<i class="fa-solid fa-user"></i> Đăng nhập';
         if (userAvatar) {
             userAvatar.src = '';
             userAvatar.style.display = 'none';
         }
+        if (userNameEl) {
+            userNameEl.innerText = 'Khách';
+        }
+        // Load local data for guest
+        await loadData(false);
     }
 });
 
