@@ -417,7 +417,7 @@ header {
     background: transparent; border: none; color: var(--text-muted);
     font-size: 1.4rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
     padding: 10px 16px; transition: var(--transition); cursor: pointer; flex: 1;
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-pill);
 }
 .bottom-nav .tab-btn span { font-size: 0.8rem; font-weight: 800; font-family: 'Nunito', sans-serif;}
 .bottom-nav .tab-btn.active {
