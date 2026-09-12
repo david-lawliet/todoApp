@@ -307,9 +307,15 @@ function startTimer() {
     }, 1000);
 }
 
-function switchMode(modeString) {
+function switchMode(modeString, specificTime = null) {
     modeBtns.forEach(b => b.classList.remove('active'));
-    const targetBtn = Array.from(modeBtns).find(b => b.getAttribute('data-mode') === modeString);
+    let targetBtn;
+    if (specificTime) {
+        targetBtn = Array.from(modeBtns).find(b => b.getAttribute('data-mode') === modeString && b.getAttribute('data-time') == specificTime);
+    } else {
+        targetBtn = Array.from(modeBtns).find(b => b.getAttribute('data-mode') === modeString);
+    }
+    
     if (targetBtn) {
         targetBtn.classList.add('active');
         currentModeMinutes = parseInt(targetBtn.getAttribute('data-time'));
@@ -335,7 +341,7 @@ function resetTimerCore() {
 
 modeBtns.forEach(btn => {
     btn.addEventListener('click', () => {
-        switchMode(btn.getAttribute('data-mode'));
+        switchMode(btn.getAttribute('data-mode'), btn.getAttribute('data-time'));
     });
 });
 
