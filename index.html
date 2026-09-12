@@ -50,6 +50,7 @@
             </div>
             <div id="authContainer" style="display: flex; gap: 8px; align-items: center;">
                 <img id="userAvatar" src="" style="width: 32px; height: 32px; border-radius: 50%; display: none;">
+                <span style="font-size: 0.7rem; color: var(--text-muted);">v21</span>
                 <button id="btnLogin" class="btn btn-outline" style="padding: 4px 12px; font-size: 0.9rem;">
                     <i class="fa-brands fa-google"></i> Đăng nhập
                 </button>
@@ -396,12 +397,12 @@
 
     <script type="module" src="./app.js?v=18"></script>
     <script>
-        // Service Worker Registration for PWA
+        // Unregister Service Workers to prevent caching bugs during development
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js').then(registration => {
-                    console.log('SW registered');
-                });
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for(let registration of registrations) {
+                    registration.unregister();
+                }
             });
         }
     </script>
