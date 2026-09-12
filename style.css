@@ -4,10 +4,10 @@
     --border-main: #000000;
     --text-main: #09090B;
     --text-muted: #52525B;
-    --accent-primary: #00C853;
-    --accent-hover: #00E676;
-    --success: #00C853;
-    --success-hover: #00E676;
+    --accent-primary: #FF6B00;
+    --accent-hover: #E65100;
+    --success: #22C55E;
+    --success-hover: #16A34A;
     --danger: #FF3D00;
     --danger-hover: #FF6E40;
     --warning: #FFC107;
@@ -36,7 +36,7 @@
 }
 
 body {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Nunito', sans-serif;
     background-color: var(--bg-main);
     color: var(--text-main);
     min-height: 100vh;
@@ -117,8 +117,8 @@ header {
     padding: 12px 24px;
     border-radius: var(--radius-pill);
     border: 2px solid var(--border-main);
-    font-family: 'Inter', sans-serif;
-    font-weight: 700;
+    font-family: 'Nunito', sans-serif;
+    font-weight: 800;
     cursor: pointer;
     transition: var(--transition);
     display: inline-flex;
@@ -419,9 +419,9 @@ header {
     font-size: 1.4rem; display: flex; flex-direction: column; align-items: center; gap: 6px;
     padding: 8px 24px; border-radius: var(--radius-md); transition: var(--transition); cursor: pointer;
 }
-.bottom-nav .tab-btn span { font-size: 0.8rem; font-weight: 700; font-family: 'Inter', sans-serif;}
+.bottom-nav .tab-btn span { font-size: 0.8rem; font-weight: 800; font-family: 'Nunito', sans-serif;}
 .bottom-nav .tab-btn.active {
-    color: var(--text-main); background: var(--cal-1); border: 2px solid var(--border-main);
+    color: var(--text-main); background: #FFEDD5; border: 2px solid var(--border-main);
     box-shadow: 2px 2px 0px #000; transform: translateY(-4px);
 }
 .bottom-nav .tab-btn.active i { color: var(--accent-primary); }
@@ -523,7 +523,7 @@ header {
 }
 .icon-box i { font-size: 1.2rem; color: var(--text-main); }
 .icon-box span { font-size: 0.75rem; color: var(--text-main); text-align: center; font-weight: 600;}
-.icon-option input:checked + .icon-box { background: var(--cal-1); border-color: var(--border-main); transform: translate(-2px,-2px); box-shadow: 4px 4px 0px #000;}
+.icon-option input:checked + .icon-box { background: #FFEDD5; border-color: var(--border-main); transform: translate(-2px,-2px); box-shadow: 4px 4px 0px #000;}
 .icon-option input:checked + .icon-box i, .icon-option input:checked + .icon-box span { color: var(--accent-primary); }
 
 .form-actions { display: flex; gap: 12px; margin-top: 16px; }
