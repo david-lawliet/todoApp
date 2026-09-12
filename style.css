@@ -566,40 +566,46 @@ header {
     .form-row { flex-direction: column; gap: 0; }
     
     /* Mobile Form Optimization */
+    .modal-header h2 {
+        font-size: 1.6rem;
+    }
     .form-group label {
-        font-size: 15px;
+        font-size: 17px;
         font-weight: 600;
-        margin-bottom: 8px;
+        margin-bottom: 12px;
+        color: #fff; /* Make it slightly brighter */
     }
     .form-group {
-        margin-bottom: 24px;
+        margin-bottom: 28px;
         gap: 0; 
     }
     .form-group input, .form-group textarea, .form-group select {
-        font-size: 16px !important;
-        padding: 14px 16px;
-        border-radius: 12px;
-        min-height: 48px;
+        font-size: 17px !important;
+        padding: 18px 20px;
+        border-radius: 16px;
+        min-height: 56px;
+        line-height: 1.5;
     }
     .form-actions {
-        margin-top: 24px;
+        margin-top: 32px;
         gap: 16px;
     }
     .form-actions .btn {
-        min-height: 50px;
-        font-size: 16px;
+        min-height: 56px;
+        font-size: 18px;
         font-weight: 700;
         border-radius: 16px;
     }
     .icon-box {
-        padding: 14px 8px;
-        border-radius: 12px;
+        padding: 18px 8px;
+        border-radius: 14px;
+        gap: 12px;
     }
     .icon-box i {
-        font-size: 1.4rem;
+        font-size: 1.7rem;
     }
     .icon-box span {
-        font-size: 0.8rem;
+        font-size: 0.95rem;
     }
 }
 
