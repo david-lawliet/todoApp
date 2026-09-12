@@ -128,7 +128,8 @@ function calculateStreak() {
         let dateStr = `${y}-${m}-${d}`;
         
         let dayData = appData.history[dateStr];
-        let isActive = dayData && (dayData.focusMinutes > 0 || dayData.todos.some(t => t.completed));
+        let tasksCompleted = appData.tasks ? appData.tasks.some(t => t.status === 'Hoàn thành' && t.completedDate === dateStr) : false;
+        let isActive = (dayData && dayData.focusMinutes > 0) || tasksCompleted;
         
         if (i === 0 && !isActive) {
             // Today is inactive, streak doesn't break yet
@@ -151,13 +152,9 @@ function updateStreakUI() {
 }
 
 // --- DOM Elements ---
-const todoForm = document.getElementById('todoForm');
-const todoInput = document.getElementById('todoInput');
-const todoTime = document.getElementById('todoTime');
-const todoCategory = document.getElementById('todoCategory');
+const btnShowAddTaskModalHome = document.getElementById('btnShowAddTaskModalHome');
 const todoList = document.getElementById('todoList');
 const todoProgressText = document.getElementById('todoProgressText');
-const todoProgressBar = document.getElementById('todoProgressBar');
 
 const timerSection = document.getElementById('timerSection');
 const timerDisplay = document.getElementById('timerDisplay');
@@ -181,9 +178,7 @@ const historyModal = document.getElementById('historyModal');
 const btnCloseModal = document.getElementById('btnCloseModal');
 const modalDateTitle = document.getElementById('modalDateTitle');
 const modalFocusTime = document.getElementById('modalFocusTime');
-const modalCompletion = document.getElementById('modalCompletion');
 const modalCompletedTasks = document.getElementById('modalCompletedTasks');
-const modalPendingTasks = document.getElementById('modalPendingTasks');
 
 const btnExport = document.getElementById('btnExport');
 const btnImport = document.getElementById('btnImport');
@@ -230,87 +225,61 @@ function playAlarm(mode) {
 
 // --- Todo Logic ---
 function renderTodos() {
-    const todayData = appData.history[todayStr];
     todoList.innerHTML = '';
+    
+    let inProgressTasks = appData.tasks ? appData.tasks.filter(t => t.status === 'Đang làm') : [];
+    
+    if (inProgressTasks.length === 0) {
+        todoList.innerHTML = '<p style="text-align:center; color:var(--text-muted); padding: 20px;">Tuyệt vời, bạn không có việc nào đang dang dở!</p>';
+    }
 
-    // Sort tasks by time
-    todayData.todos.sort((a, b) => {
-        if (!a.time) return 1;
-        if (!b.time) return -1;
-        return a.time.localeCompare(b.time);
-    });
+    inProgressTasks.forEach(task => {
+        const item = document.createElement('div');
+        item.className = 'tm-task-item';
 
-    let completedCount = 0;
+        const iconMap = {
+            'Tài liệu': 'fa-file-lines', 'Mua sắm': 'fa-cart-shopping', 'Học tập': 'fa-book-open',
+            'Sức khỏe': 'fa-heart-pulse', 'Công việc': 'fa-desktop', 'Du lịch': 'fa-plane',
+            'Lịch trình': 'fa-calendar-days', 'Thời gian': 'fa-clock'
+        };
+        const iconClass = iconMap[task.icon] || 'fa-list';
+        
+        let priorityClass = 'priority-trungbinh';
+        if (task.priority === 'Cao') priorityClass = 'priority-cao';
+        else if (task.priority === 'Thấp') priorityClass = 'priority-thap';
 
-    todayData.todos.forEach(task => {
-        if (task.completed) completedCount++;
-
-        const li = document.createElement('li');
-        li.className = `todo-item ${task.completed ? 'completed' : ''}`;
-
-        const catMap = { work: 'Làm việc', study: 'Học tập', personal: 'Cá nhân', health: 'Sức khỏe' };
-
-        li.innerHTML = `
-            <div class="checkbox" onclick="toggleTask('${task.id}')">
-                <i class="fa-solid fa-check"></i>
-            </div>
-            <div class="task-content">
-                <div class="task-header">
-                    <span class="task-time">${task.time ? `[${task.time}]` : ''}</span>
-                    <span class="task-text">${task.text}</span>
+        item.innerHTML = `
+            <div class="checkbox" onclick="toggleTmTaskCompletion('${task.id}')"></div>
+            <div class="tm-task-icon-wrapper"><i class="fa-solid ${iconClass}"></i></div>
+            <div class="tm-task-details">
+                <div class="tm-task-title">
+                    <span>${task.title}</span>
                 </div>
-                <span class="task-tag ${task.category}">${catMap[task.category]}</span>
+                ${task.desc ? `<div class="tm-task-desc">${task.desc}</div>` : ''}
+                <div class="tm-task-meta">
+                    <select class="tm-status-badge status-danglam" onchange="changeTmTaskStatus('${task.id}', this.value)" style="cursor: pointer; outline: none; -webkit-appearance: none; appearance: none; padding-right: 12px; text-align: center;">
+                        <option value="Chưa làm">Chưa làm</option>
+                        <option value="Đang làm" selected>Đang làm</option>
+                        <option value="Hoàn thành">Hoàn thành</option>
+                    </select>
+                    <span class="${priorityClass}"><i class="fa-solid fa-flag"></i> ${task.priority}</span>
+                    ${task.deadline ? `<span><i class="fa-solid fa-bell"></i> Hạn: ${new Date(task.deadline).toLocaleString('vi-VN')}</span>` : ''}
+                </div>
             </div>
-            <button class="btn-delete" onclick="deleteTask('${task.id}')">
-                <i class="fa-solid fa-trash"></i>
-            </button>
         `;
-        todoList.appendChild(li);
+        todoList.appendChild(item);
     });
 
-    const total = todayData.todos.length;
-    todoProgressText.innerText = `${completedCount}/${total} Hoàn thành`;
-    todoProgressBar.style.width = total === 0 ? '0%' : `${(completedCount / total) * 100}%`;
+    const total = appData.tasks ? appData.tasks.length : 0;
+    const completedCount = appData.tasks ? appData.tasks.filter(t => t.status === 'Hoàn thành').length : 0;
+    todoProgressText.innerText = `Hoàn thành ${completedCount}/${total} công việc`;
 }
 
-function addTask(e) {
-    e.preventDefault();
-    const text = todoInput.value.trim();
-    const time = todoTime.value;
-    if (!text || !time) {
-        alert("Vui lòng nhập giờ và nội dung!");
-        return;
-    }
-
-    appData.history[todayStr].todos.push({
-        id: Date.now().toString(),
-        text,
-        time,
-        category: todoCategory.value,
-        completed: false
+if (btnShowAddTaskModalHome) {
+    btnShowAddTaskModalHome.addEventListener('click', () => {
+        document.getElementById('tmAddTaskModal').classList.add('active');
     });
-
-    todoInput.value = '';
-    saveData();
-    renderTodos();
 }
-
-window.toggleTask = function (id) {
-    const task = appData.history[todayStr].todos.find(t => t.id === id);
-    if (task) {
-        task.completed = !task.completed;
-        saveData();
-        renderTodos();
-    }
-}
-
-window.deleteTask = function (id) {
-    appData.history[todayStr].todos = appData.history[todayStr].todos.filter(t => t.id !== id);
-    saveData();
-    renderTodos();
-}
-
-todoForm.addEventListener('submit', addTask);
 
 // --- Timer Logic ---
 let timerInterval;
@@ -438,11 +407,9 @@ btnResetTimer.addEventListener('click', resetTimerCore);
 
 // --- Analytics ---
 function updateAnalytics() {
-    statTodayFocus.innerText = `${appData.history[todayStr].focusMinutes} phút`;
-    let totalCompleted = 0;
-    Object.values(appData.history).forEach(day => {
-        totalCompleted += day.todos.filter(t => t.completed).length;
-    });
+    if (!appData.history[todayStr]) appData.history[todayStr] = { focusMinutes: 0 };
+    statTodayFocus.innerText = `${appData.history[todayStr].focusMinutes || 0} phút`;
+    let totalCompleted = appData.tasks ? appData.tasks.filter(t => t.status === 'Hoàn thành').length : 0;
     statTotalTasks.innerText = totalCompleted;
 }
 
@@ -483,19 +450,19 @@ function renderCalendar() {
         }
 
         let level = 0;
+        let activityScore = 0;
 
         if (appData.history[dateStr]) {
-            const data = appData.history[dateStr];
-            const completed = data.todos.filter(t => t.completed).length;
-            const focus = data.focusMinutes;
-
-            let activityScore = completed * 10 + focus;
-
-            if (activityScore > 0 && activityScore <= 20) level = 1;
-            else if (activityScore > 20 && activityScore <= 50) level = 2;
-            else if (activityScore > 50 && activityScore <= 100) level = 3;
-            else if (activityScore > 100) level = 4;
+            activityScore += (appData.history[dateStr].focusMinutes || 0);
         }
+        
+        let tasksCompletedThatDay = appData.tasks ? appData.tasks.filter(t => t.status === 'Hoàn thành' && t.completedDate === dateStr).length : 0;
+        activityScore += (tasksCompletedThatDay * 10);
+
+        if (activityScore > 0 && activityScore <= 20) level = 1;
+        else if (activityScore > 20 && activityScore <= 50) level = 2;
+        else if (activityScore > 50 && activityScore <= 100) level = 3;
+        else if (activityScore > 100) level = 4;
 
         cell.classList.add(`level-${level}`);
         cell.addEventListener('click', () => showHistory(dateStr));
@@ -519,43 +486,36 @@ btnNextMonth.addEventListener('click', () => {
 
 // --- History Modal ---
 function showHistory(dateStr) {
-    const data = appData.history[dateStr] || { todos: [], focusMinutes: 0 };
-
+    const data = appData.history[dateStr] || { focusMinutes: 0 };
     modalDateTitle.innerText = `Lịch sử: ${dateStr}`;
-    modalFocusTime.innerText = `${data.focusMinutes} phút`;
+    modalFocusTime.innerText = `${data.focusMinutes || 0} phút`;
 
-    const total = data.todos.length;
-    const completed = data.todos.filter(t => t.completed);
-    const pending = data.todos.filter(t => !t.completed);
+    const completed = appData.tasks ? appData.tasks.filter(t => t.status === 'Hoàn thành' && t.completedDate === dateStr) : [];
 
-    modalCompletion.innerText = total === 0 ? '0%' : `${Math.round((completed.length / total) * 100)}%`;
-
-    function renderMiniList(container, arr) {
-        container.innerHTML = '';
-        if (arr.length === 0) {
-            container.innerHTML = '<p style="color:var(--text-muted); font-size:0.9rem;">Trống</p>';
-            return;
-        }
-        arr.forEach(task => {
-            const catMap = { work: 'Làm việc', study: 'Học tập', personal: 'Cá nhân', health: 'Sức khỏe' };
-            const li = document.createElement('li');
-            li.className = `todo-item ${task.completed ? 'completed' : ''}`;
-            li.innerHTML = `
+    modalCompletedTasks.innerHTML = '';
+    if (completed.length === 0) {
+        modalCompletedTasks.innerHTML = '<p style="color:var(--text-muted); font-size:0.9rem; text-align:center; padding: 20px;">Trống</p>';
+    } else {
+        completed.forEach(task => {
+            const item = document.createElement('div');
+            item.className = 'tm-task-item completed';
+            const iconMap = {
+                'Tài liệu': 'fa-file-lines', 'Mua sắm': 'fa-cart-shopping', 'Học tập': 'fa-book-open',
+                'Sức khỏe': 'fa-heart-pulse', 'Công việc': 'fa-desktop', 'Du lịch': 'fa-plane',
+                'Lịch trình': 'fa-calendar-days', 'Thời gian': 'fa-clock'
+            };
+            const iconClass = iconMap[task.icon] || 'fa-list';
+            item.innerHTML = `
                 <div class="checkbox"><i class="fa-solid fa-check"></i></div>
-                <div class="task-content">
-                    <div class="task-header">
-                        <span class="task-time">${task.time ? `[${task.time}]` : ''}</span>
-                        <span class="task-text">${task.text}</span>
-                    </div>
-                    <span class="task-tag ${task.category}">${catMap[task.category]}</span>
+                <div class="tm-task-icon-wrapper"><i class="fa-solid ${iconClass}"></i></div>
+                <div class="tm-task-details">
+                    <div class="tm-task-title"><span style="text-decoration: line-through; color: var(--text-muted);">${task.title}</span></div>
+                    ${task.desc ? `<div class="tm-task-desc">${task.desc}</div>` : ''}
                 </div>
             `;
-            container.appendChild(li);
+            modalCompletedTasks.appendChild(item);
         });
     }
-
-    renderMiniList(modalCompletedTasks, completed);
-    renderMiniList(modalPendingTasks, pending);
 
     historyModal.classList.add('active');
 }
@@ -794,6 +754,7 @@ tmAddTaskForm.addEventListener('submit', (e) => {
     appData.tasks.unshift(newTask);
     saveData();
     renderTmTasks();
+    if (typeof renderTodos === "function") renderTodos();
     closeTmModal();
 });
 
@@ -802,15 +763,23 @@ window.deleteTmTask = function (id) {
         appData.tasks = appData.tasks.filter(t => t.id !== id);
         saveData();
         renderTmTasks();
+        if (typeof renderTodos === "function") renderTodos();
     }
 }
 
 window.toggleTmTaskCompletion = function (id) {
     const task = appData.tasks.find(t => t.id === id);
     if (task) {
-        task.status = task.status === 'Hoàn thành' ? 'Chưa làm' : 'Hoàn thành';
+        if (task.status === 'Hoàn thành') {
+            task.status = 'Chưa làm';
+            task.completedDate = null;
+        } else {
+            task.status = 'Hoàn thành';
+            task.completedDate = getTodayStr();
+        }
         saveData();
         renderTmTasks();
+        if (typeof renderTodos === "function") renderTodos();
     }
 };
 
@@ -818,8 +787,14 @@ window.changeTmTaskStatus = function (id, newStatus) {
     const task = appData.tasks.find(t => t.id === id);
     if (task) {
         task.status = newStatus;
+        if (newStatus === 'Hoàn thành') {
+            task.completedDate = getTodayStr();
+        } else {
+            task.completedDate = null;
+        }
         saveData();
         renderTmTasks();
+        if (typeof renderTodos === "function") renderTodos();
     }
 };
 
