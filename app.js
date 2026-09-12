@@ -314,7 +314,7 @@ todoForm.addEventListener('submit', addTask);
 
 // --- Timer Logic ---
 let timerInterval;
-let timeLeft = 5; // For testing: 5 seconds instead of 25 * 60
+let timeLeft = 25 * 60;
 let isRunning = false;
 let currentModeMinutes = 25;
 let currentModeType = 'pomodoro';
@@ -421,7 +421,7 @@ function resetTimerCore() {
     clearInterval(timerInterval);
     const keepAliveSound = document.getElementById('keepAliveSound');
     if (keepAliveSound) { keepAliveSound.pause(); keepAliveSound.currentTime = 0; }
-    timeLeft = 5; // For testing: 5 seconds instead of currentModeMinutes * 60
+    timeLeft = currentModeMinutes * 60;
     timerStatus.innerText = "Sẵn sàng (Tự động lặp lại)";
     updateTimerDisplay();
 }
