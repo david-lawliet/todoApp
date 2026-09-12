@@ -166,7 +166,7 @@
             </div>
 
             <div class="tm-stats-grid">
-                <div class="tm-stat-card">
+                <div class="tm-stat-card" id="cardStatTotal" style="cursor: pointer;">
                     <div class="tm-stat-icon bg-blue"><i class="fa-solid fa-check-to-slot"></i></div>
                     <div class="tm-stat-info">
                         <h3>Tổng số task</h3>
@@ -174,7 +174,7 @@
                         <span class="tm-stat-desc">Tất cả công việc</span>
                     </div>
                 </div>
-                <div class="tm-stat-card">
+                <div class="tm-stat-card" id="cardStatInProgress" style="cursor: pointer;">
                     <div class="tm-stat-icon bg-lightblue"><i class="fa-solid fa-arrows-rotate"></i></div>
                     <div class="tm-stat-info">
                         <h3>Đang làm</h3>
@@ -182,7 +182,7 @@
                         <span class="tm-stat-desc">Công việc đang thực hiện</span>
                     </div>
                 </div>
-                <div class="tm-stat-card">
+                <div class="tm-stat-card" id="cardStatCompleted" style="cursor: pointer;">
                     <div class="tm-stat-icon bg-green"><i class="fa-solid fa-circle-check"></i></div>
                     <div class="tm-stat-info">
                         <h3>Hoàn thành</h3>
@@ -190,7 +190,7 @@
                         <span class="tm-stat-desc">Công việc đã hoàn thành</span>
                     </div>
                 </div>
-                <div class="tm-stat-card">
+                <div class="tm-stat-card" id="cardStatOverdue" style="cursor: pointer;">
                     <div class="tm-stat-icon bg-red"><i class="fa-solid fa-clock"></i></div>
                     <div class="tm-stat-info">
                         <h3>Quá hạn</h3>
@@ -213,6 +213,7 @@
                         <option value="Chưa làm">Chưa làm</option>
                         <option value="Đang làm">Đang làm</option>
                         <option value="Hoàn thành">Hoàn thành</option>
+                        <option value="Quá hạn">Quá hạn</option>
                     </select>
                     <select id="tmFilterPriority">
                         <option value="all">Tất cả độ ưu tiên</option>

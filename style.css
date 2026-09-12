@@ -463,6 +463,11 @@ header {
 .tm-stat-card {
     background: var(--bg-card); border: 1px solid var(--border-main); border-radius: var(--radius-lg);
     padding: 20px; display: flex; align-items: center; gap: 16px; box-shadow: var(--shadow-hard);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.tm-stat-card:hover {
+    transform: translate(-4px, -4px);
+    box-shadow: var(--shadow-hard-hover);
 }
 .tm-stat-icon {
     width: 50px; height: 50px; border-radius: 12px; border: 1px solid var(--border-main); display: flex; align-items: center; justify-content: center;
@@ -515,6 +520,11 @@ header {
 .tm-task-meta { display: flex; gap: 12px; font-size: 0.95rem; color: var(--text-main); margin-top: 8px; flex-wrap: wrap; font-weight: 600; }
 .tm-task-meta span { display: flex; align-items: center; gap: 6px; background: var(--bg-main); border: 1px solid var(--border-main); padding: 6px 12px; border-radius: var(--radius-pill); box-shadow: none;}
 .tm-status-badge { padding: 6px 12px; border-radius: var(--radius-pill); font-size: 0.95rem; font-weight: 700; border: 1px solid var(--border-main); box-shadow: none;}
+select.tm-status-badge option { background: var(--bg-card); color: var(--text-main); }
+
+.tm-task-item.completed { opacity: 0.6; }
+.tm-task-item.completed .tm-task-title span:first-child { text-decoration: line-through; color: var(--text-muted); }
+.tm-task-item.completed .checkbox { background: var(--success); color: #fff; border-color: var(--success); }
 .status-chualam { background: var(--bg-main); color: var(--text-main); }
 .status-danglam { background: var(--accent-primary); color: #fff; }
 .status-hoanthanh { background: var(--cal-3); color: #fff; }

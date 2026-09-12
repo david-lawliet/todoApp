@@ -675,11 +675,14 @@ function renderTmTasks() {
     const searchVal = tmSearchInput.value.toLowerCase();
     const statusVal = tmFilterStatus.value;
     const priorityVal = tmFilterPriority.value;
+    const now = new Date();
 
     if (searchVal) {
         filteredTasks = filteredTasks.filter(t => t.title.toLowerCase().includes(searchVal) || t.desc.toLowerCase().includes(searchVal));
     }
-    if (statusVal !== 'all') {
+    if (statusVal === 'Quá hạn') {
+        filteredTasks = filteredTasks.filter(t => t.status !== 'Hoàn thành' && t.deadline && new Date(t.deadline) < now);
+    } else if (statusVal !== 'all') {
         filteredTasks = filteredTasks.filter(t => t.status === statusVal);
     }
     if (priorityVal !== 'all') {
@@ -692,7 +695,8 @@ function renderTmTasks() {
 
     filteredTasks.forEach(task => {
         const item = document.createElement('div');
-        item.className = 'tm-task-item';
+        let isCompleted = task.status === 'Hoàn thành';
+        item.className = `tm-task-item ${isCompleted ? 'completed' : ''}`;
 
         const iconMap = {
             'Tài liệu': 'fa-file-lines', 'Mua sắm': 'fa-cart-shopping', 'Học tập': 'fa-book-open',
@@ -710,6 +714,9 @@ function renderTmTasks() {
         else if (task.priority === 'Thấp') priorityClass = 'priority-thap';
 
         item.innerHTML = `
+            <div class="checkbox" onclick="toggleTmTaskCompletion('${task.id}')">
+                ${isCompleted ? '<i class="fa-solid fa-check"></i>' : ''}
+            </div>
             <div class="tm-task-icon-wrapper"><i class="fa-solid ${iconClass}"></i></div>
             <div class="tm-task-details">
                 <div class="tm-task-title">
@@ -720,7 +727,11 @@ function renderTmTasks() {
                 </div>
                 ${task.desc ? `<div class="tm-task-desc">${task.desc}</div>` : ''}
                 <div class="tm-task-meta">
-                    <span class="tm-status-badge ${statusClass}">${task.status}</span>
+                    <select class="tm-status-badge ${statusClass}" onchange="changeTmTaskStatus('${task.id}', this.value)" style="cursor: pointer; outline: none; -webkit-appearance: none; appearance: none; padding-right: 12px; text-align: center;">
+                        <option value="Chưa làm" ${task.status === 'Chưa làm' ? 'selected' : ''}>Chưa làm</option>
+                        <option value="Đang làm" ${task.status === 'Đang làm' ? 'selected' : ''}>Đang làm</option>
+                        <option value="Hoàn thành" ${task.status === 'Hoàn thành' ? 'selected' : ''}>Hoàn thành</option>
+                    </select>
                     <span class="${priorityClass}"><i class="fa-solid fa-flag"></i> ${task.priority}</span>
                     ${task.startDate ? `<span><i class="fa-solid fa-calendar-plus"></i> Bắt đầu: ${task.startDate}</span>` : ''}
                     ${task.deadline ? `<span><i class="fa-solid fa-bell"></i> Hạn: ${new Date(task.deadline).toLocaleString('vi-VN')}</span>` : ''}
@@ -793,6 +804,29 @@ window.deleteTmTask = function (id) {
         renderTmTasks();
     }
 }
+
+window.toggleTmTaskCompletion = function (id) {
+    const task = appData.tasks.find(t => t.id === id);
+    if (task) {
+        task.status = task.status === 'Hoàn thành' ? 'Chưa làm' : 'Hoàn thành';
+        saveData();
+        renderTmTasks();
+    }
+};
+
+window.changeTmTaskStatus = function (id, newStatus) {
+    const task = appData.tasks.find(t => t.id === id);
+    if (task) {
+        task.status = newStatus;
+        saveData();
+        renderTmTasks();
+    }
+};
+
+document.getElementById('cardStatTotal').addEventListener('click', () => { tmFilterStatus.value = 'all'; renderTmTasks(); });
+document.getElementById('cardStatInProgress').addEventListener('click', () => { tmFilterStatus.value = 'Đang làm'; renderTmTasks(); });
+document.getElementById('cardStatCompleted').addEventListener('click', () => { tmFilterStatus.value = 'Hoàn thành'; renderTmTasks(); });
+document.getElementById('cardStatOverdue').addEventListener('click', () => { tmFilterStatus.value = 'Quá hạn'; renderTmTasks(); });
 
 tmSearchInput.addEventListener('input', renderTmTasks);
 tmFilterStatus.addEventListener('change', renderTmTasks);
