@@ -292,11 +292,17 @@ function startTimer() {
 
             playAlarm(currentModeType);
 
-            // Auto switch mode
+            // Auto switch mode (Pair 45m with 15m, 25m with 5m)
             if (currentModeType === 'pomodoro') {
-                switchMode('shortBreak');
-            } else {
-                switchMode('pomodoro');
+                if (currentModeMinutes === 45) {
+                    switchMode('longBreak', 15);
+                } else {
+                    switchMode('shortBreak', 5);
+                }
+            } else if (currentModeType === 'shortBreak') {
+                switchMode('pomodoro', 25);
+            } else if (currentModeType === 'longBreak') {
+                switchMode('pomodoro', 45);
             }
 
             // Auto start next phase
