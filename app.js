@@ -56,6 +56,8 @@ async function loadData() {
         updateTimerDisplay();
         updateAnalytics();
         renderCalendar();
+        updateStreakUI();
+        if (typeof checkRollover === "function") checkRollover();
         if (typeof renderTmTasks === "function") renderTmTasks();
     }
 
@@ -82,6 +84,8 @@ async function loadData() {
                 renderTodos();
                 updateAnalytics();
                 renderCalendar();
+                updateStreakUI();
+                if (typeof checkRollover === "function") checkRollover();
                 if (typeof renderTmTasks === "function") renderTmTasks();
             }
         } catch (e) {
@@ -106,6 +110,41 @@ async function saveData() {
 
     updateAnalytics();
     renderCalendar();
+    updateStreakUI();
+}
+
+// --- Streak Logic ---
+function calculateStreak() {
+    let streak = 0;
+    let checkDate = new Date();
+    
+    for (let i = 0; i < 365; i++) {
+        let y = checkDate.getFullYear();
+        let m = String(checkDate.getMonth() + 1).padStart(2, '0');
+        let d = String(checkDate.getDate()).padStart(2, '0');
+        let dateStr = `${y}-${m}-${d}`;
+        
+        let dayData = appData.history[dateStr];
+        let isActive = dayData && (dayData.focusMinutes > 0 || dayData.todos.some(t => t.completed));
+        
+        if (i === 0 && !isActive) {
+            // Today is inactive, streak doesn't break yet
+        } else if (isActive) {
+            streak++;
+        } else {
+            // Found an inactive day (yesterday or older), streak breaks
+            break;
+        }
+        checkDate.setDate(checkDate.getDate() - 1);
+    }
+    return streak;
+}
+
+function updateStreakUI() {
+    const streakElement = document.getElementById('streakCount');
+    if (streakElement) {
+        streakElement.innerText = calculateStreak();
+    }
 }
 
 // --- DOM Elements ---
@@ -718,3 +757,166 @@ window.deleteTmTask = function (id) {
 tmSearchInput.addEventListener('input', renderTmTasks);
 tmFilterStatus.addEventListener('change', renderTmTasks);
 tmFilterPriority.addEventListener('change', renderTmTasks);
+
+let focusChartInstance = null;
+let categoryChartInstance = null;
+
+function renderAdvancedAnalytics() {
+    // 1. Focus 7 days chart
+    const ctxFocus = document.getElementById('focusChart');
+    if (!ctxFocus) return;
+    
+    let labels = [];
+    let focusData = [];
+    
+    let checkDate = new Date();
+    for (let i = 6; i >= 0; i--) {
+        let d = new Date(checkDate);
+        d.setDate(d.getDate() - i);
+        let y = d.getFullYear();
+        let m = String(d.getMonth() + 1).padStart(2, '0');
+        let day = String(d.getDate()).padStart(2, '0');
+        let dateStr = `${y}-${m}-${day}`;
+        
+        labels.push(`${day}/${m}`);
+        
+        if (appData.history[dateStr]) {
+            focusData.push(appData.history[dateStr].focusMinutes);
+        } else {
+            focusData.push(0);
+        }
+    }
+    
+    if (focusChartInstance) focusChartInstance.destroy();
+    focusChartInstance = new Chart(ctxFocus, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Phút tập trung',
+                data: focusData,
+                backgroundColor: '#E05A33',
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: { beginAtZero: true, grid: { color: '#3E352D' }, ticks: { color: '#9E9287' } },
+                x: { grid: { display: false }, ticks: { color: '#9E9287' } }
+            }
+        }
+    });
+
+    // 2. Category Pie Chart (Today)
+    const ctxCat = document.getElementById('categoryChart');
+    if (!ctxCat) return;
+    
+    let catCounts = {};
+    if (appData.history[todayStr]) {
+        appData.history[todayStr].todos.forEach(t => {
+            if (t.completed) {
+                catCounts[t.category] = (catCounts[t.category] || 0) + 1;
+            }
+        });
+    }
+    
+    let catLabels = Object.keys(catCounts);
+    let catData = Object.values(catCounts);
+    
+    if (categoryChartInstance) categoryChartInstance.destroy();
+    
+    if (catLabels.length === 0) {
+        catLabels = ["Chưa có"];
+        catData = [1];
+    }
+    
+    categoryChartInstance = new Chart(ctxCat, {
+        type: 'doughnut',
+        data: {
+            labels: catLabels,
+            datasets: [{
+                data: catData,
+                backgroundColor: ['#E05A33', '#F59E0B', '#22C55E', '#3B82F6', '#8B5CF6'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'bottom', labels: { color: '#EFE9E0' } }
+            }
+        }
+    });
+}
+
+// --- Rollover Logic ---
+const rolloverModal = document.getElementById('rolloverModal');
+const btnCloseRollover = document.getElementById('btnCloseRollover');
+const btnIgnoreRollover = document.getElementById('btnIgnoreRollover');
+const btnAcceptRollover = document.getElementById('btnAcceptRollover');
+const rolloverTaskList = document.getElementById('rolloverTaskList');
+
+let pendingRolloverTasks = [];
+
+function checkRollover() {
+    // Find the most recent day before today
+    let dates = Object.keys(appData.history).filter(d => d < todayStr).sort().reverse();
+    if (dates.length === 0) return;
+    
+    let lastDate = dates[0];
+    let lastData = appData.history[lastDate];
+    if (!lastData || !lastData.todos) return;
+    
+    let uncompleted = lastData.todos.filter(t => !t.completed && !t.rolledOver);
+    if (uncompleted.length === 0) return;
+    
+    // Check if we already asked today (we can mark them as rolledOver whether accepted or ignored)
+    pendingRolloverTasks = uncompleted;
+    
+    // Build UI
+    rolloverTaskList.innerHTML = '';
+    uncompleted.forEach(t => {
+        let div = document.createElement('div');
+        div.style.padding = '8px';
+        div.style.borderBottom = '1px solid var(--border-main)';
+        div.style.marginBottom = '4px';
+        div.innerText = `• ${t.text}`;
+        rolloverTaskList.appendChild(div);
+    });
+    
+    rolloverModal.classList.add('active');
+}
+
+function processRollover(accept) {
+    let dates = Object.keys(appData.history).filter(d => d < todayStr).sort().reverse();
+    if (dates.length > 0) {
+        let lastDate = dates[0];
+        appData.history[lastDate].todos.forEach(t => {
+            if (!t.completed) t.rolledOver = true; // Mark as handled
+        });
+    }
+    
+    if (accept) {
+        pendingRolloverTasks.forEach(t => {
+            appData.history[todayStr].todos.push({
+                id: Date.now() + Math.random(),
+                text: t.text,
+                time: t.time,
+                category: t.category,
+                completed: false
+            });
+        });
+    }
+    
+    saveData();
+    renderTodos();
+    rolloverModal.classList.remove('active');
+}
+
+if (btnCloseRollover) btnCloseRollover.addEventListener('click', () => rolloverModal.classList.remove('active'));
+if (btnIgnoreRollover) btnIgnoreRollover.addEventListener('click', () => processRollover(false));
+if (btnAcceptRollover) btnAcceptRollover.addEventListener('click', () => processRollover(true));

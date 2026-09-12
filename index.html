@@ -23,6 +23,9 @@
 
     <!-- Styles -->
     <link rel="stylesheet" href="./style.css">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
@@ -38,6 +41,10 @@
             <div class="logo">
                 <i class="fa-solid fa-layer-group"></i>
                 <h1>Todo</h1>
+            </div>
+            <div class="streak-container" id="streakContainer" title="Chuỗi ngày liên tục">
+                <i class="fa-solid fa-fire" style="color: #F59E0B;"></i>
+                <span id="streakCount">0</span>
             </div>
 
         </header>
@@ -326,6 +333,38 @@
         </div>
     </div>
 
+    <!-- Main Content: Analytics Tab -->
+    <main class="dashboard-grid tab-content" id="tabAnalytics">
+        <section class="full-col" style="padding: 16px;">
+            <div class="glass-panel" style="margin-bottom: 24px;">
+                <h2><i class="fa-solid fa-chart-column"></i> Thống kê 7 ngày qua (Focus)</h2>
+                <canvas id="focusChart" width="400" height="200"></canvas>
+            </div>
+            <div class="glass-panel">
+                <h2><i class="fa-solid fa-chart-pie"></i> Phân loại Công việc (Hôm nay)</h2>
+                <canvas id="categoryChart" width="400" height="200"></canvas>
+            </div>
+        </section>
+    </main>
+
+    <!-- Rollover Modal -->
+    <div class="modal-overlay" id="rolloverModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="rolloverTitle">Công việc tồn đọng</h3>
+                <button class="btn-icon" id="btnCloseRollover"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <p style="margin-bottom: 12px; color: var(--text-muted);">Bạn có vài công việc chưa hoàn thành từ hôm qua. Chuyển sang hôm nay nhé?</p>
+                <div id="rolloverTaskList" style="margin-bottom: 16px;"></div>
+                <div class="form-actions">
+                    <button class="btn btn-outline" id="btnIgnoreRollover">Bỏ qua</button>
+                    <button class="btn btn-primary w-100" id="btnAcceptRollover">Chuyển sang Hôm nay</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Footer Actions -->
     <div class="footer-actions">
         <button id="btnExport" class="btn btn-outline"><i class="fa-solid fa-download"></i> Sao lưu</button>
@@ -336,7 +375,7 @@
     </div>
 </div>
 
-    <script type="module" src="./app.js?v=14"></script>
+    <script type="module" src="./app.js?v=15"></script>
     <script>
         // Service Worker Registration for PWA
         if ('serviceWorker' in navigator) {
@@ -348,7 +387,7 @@
         }
     </script>
 
-    <!-- Bottom Navigation Bar for Mobile -->
+    <!-- Bottom Navigation -->
     <nav class="bottom-nav">
         <button class="tab-btn active" data-target="tabLifeTracker">
             <i class="fa-solid fa-stopwatch"></i>
@@ -356,9 +395,14 @@
         </button>
         <button class="tab-btn" data-target="tabTaskManager">
             <i class="fa-solid fa-list-check"></i>
-            <span>Quản lý Task</span>
+            <span>Task</span>
+        </button>
+        <button class="tab-btn" data-target="tabAnalytics">
+            <i class="fa-solid fa-chart-line"></i>
+            <span>Thống kê</span>
         </button>
     </nav>
 </body>
 
 </html>
+</content>
