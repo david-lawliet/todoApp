@@ -1,5 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
-import { getFirestore, doc, setDoc, collection, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+import { getFirestore, doc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 
 // TODO: Thay thông tin cấu hình Firebase của bạn vào đây
 const firebaseConfig = {
@@ -14,6 +15,9 @@ const firebaseConfig = {
 // Khởi tạo Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
+let currentUser = null;
 
 // --- State Management ---
 let appData = {
@@ -35,8 +39,8 @@ const todayStr = getTodayStr();
 let currentViewYear = new Date().getFullYear();
 let currentViewMonth = new Date().getMonth(); // 0 to 11
 
-async function loadData() {
-    // 1. Tải từ LocalStorage trước (để load nhanh hoặc offline)
+async function loadData(forceCloud = false) {
+    // 1. Tải từ LocalStorage trước
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
         try {
@@ -50,26 +54,26 @@ async function loadData() {
         appData.history[todayStr] = { todos: [], focusMinutes: 0 };
     }
 
-    // Render giao diện ngay lập tức với dữ liệu offline để không bị trống
+    // Render giao diện ngay lập tức với dữ liệu offline
     if (typeof renderTodos === "function") {
         renderTodos();
         updateTimerDisplay();
         updateAnalytics();
         renderCalendar();
         updateStreakUI();
-        if (typeof checkRollover === "function") checkRollover();
+        if (typeof checkRollover === "function" && !forceCloud) checkRollover(); // Only check rollover once on load
         if (typeof renderTmTasks === "function") renderTmTasks();
     }
 
-    // 2. Tải từ Firebase (Ghi đè dữ liệu cục bộ bằng dữ liệu online mới nhất)
-    if (firebaseConfig.projectId !== "YOUR_PROJECT_ID") {
+    // 2. Tải từ Firebase nếu đã đăng nhập
+    if (currentUser) {
         try {
-            const querySnapshot = await getDocs(collection(db, "history"));
+            const querySnapshot = await getDocs(collection(db, `users/${currentUser.uid}/history`));
             querySnapshot.forEach((docSnap) => {
                 appData.history[docSnap.id] = docSnap.data();
             });
 
-            const tasksSnapshot = await getDocs(collection(db, "tasks"));
+            const tasksSnapshot = await getDocs(collection(db, `users/${currentUser.uid}/tasks`));
             tasksSnapshot.forEach((docSnap) => {
                 if (docSnap.id === "all") {
                     appData.tasks = docSnap.data().tasks || [];
@@ -85,11 +89,10 @@ async function loadData() {
                 updateAnalytics();
                 renderCalendar();
                 updateStreakUI();
-                if (typeof checkRollover === "function") checkRollover();
                 if (typeof renderTmTasks === "function") renderTmTasks();
             }
         } catch (e) {
-            console.error("Failed to fetch data from Firebase (Có thể cấu hình chưa đúng)", e);
+            console.error("Failed to fetch data from Firebase", e);
         }
     }
 }
@@ -98,11 +101,11 @@ async function saveData() {
     // Lưu vào LocalStorage
     localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
 
-    // Lưu ngày hiện tại lên Firebase
+    // Lưu lên Firebase nếu đã đăng nhập
     try {
-        if (firebaseConfig.projectId !== "YOUR_PROJECT_ID") {
-            await setDoc(doc(db, "history", todayStr), appData.history[todayStr]);
-            await setDoc(doc(db, "tasks", "all"), { tasks: appData.tasks });
+        if (currentUser) {
+            await setDoc(doc(db, `users/${currentUser.uid}/history`, todayStr), appData.history[todayStr]);
+            await setDoc(doc(db, `users/${currentUser.uid}/tasks`, "all"), { tasks: appData.tasks });
         }
     } catch (e) {
         console.error("Error saving to Firebase", e);
@@ -920,3 +923,40 @@ function processRollover(accept) {
 if (btnCloseRollover) btnCloseRollover.addEventListener('click', () => rolloverModal.classList.remove('active'));
 if (btnIgnoreRollover) btnIgnoreRollover.addEventListener('click', () => processRollover(false));
 if (btnAcceptRollover) btnAcceptRollover.addEventListener('click', () => processRollover(true));
+
+// UI Elements cho Auth
+const btnLogin = document.getElementById('btnLogin');
+const userAvatar = document.getElementById('userAvatar');
+
+if (btnLogin) {
+    btnLogin.addEventListener('click', () => {
+        if (currentUser) {
+            signOut(auth);
+        } else {
+            signInWithPopup(auth, provider).catch(error => {
+                console.error("Lỗi đăng nhập:", error);
+                alert("Đăng nhập thất bại, vui lòng thử lại.");
+            });
+        }
+    });
+}
+
+onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        currentUser = user;
+        if (btnLogin) btnLogin.innerHTML = '<i class="fa-solid fa-right-from-bracket"></i> Đăng xuất';
+        if (userAvatar) {
+            userAvatar.src = user.photoURL;
+            userAvatar.style.display = 'block';
+        }
+        // Load data from Cloud for this user
+        await loadData(true);
+    } else {
+        currentUser = null;
+        if (btnLogin) btnLogin.innerHTML = '<i class="fa-brands fa-google"></i> Đăng nhập';
+        if (userAvatar) {
+            userAvatar.src = '';
+            userAvatar.style.display = 'none';
+        }
+    }
+});

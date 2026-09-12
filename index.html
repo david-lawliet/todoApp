@@ -46,6 +46,12 @@
                 <i class="fa-solid fa-fire" style="color: #F59E0B;"></i>
                 <span id="streakCount">0</span>
             </div>
+            <div id="authContainer" style="display: flex; gap: 8px; align-items: center;">
+                <img id="userAvatar" src="" style="width: 32px; height: 32px; border-radius: 50%; display: none;">
+                <button id="btnLogin" class="btn btn-outline" style="padding: 4px 12px; font-size: 0.9rem;">
+                    <i class="fa-brands fa-google"></i> Đăng nhập
+                </button>
+            </div>
 
         </header>
 
@@ -375,7 +381,7 @@
     </div>
 </div>
 
-    <script type="module" src="./app.js?v=15"></script>
+    <script type="module" src="./app.js?v=17"></script>
     <script>
         // Service Worker Registration for PWA
         if ('serviceWorker' in navigator) {
