@@ -1,11 +1,13 @@
-const CACHE_NAME = 'lifetracker-v7';
+const CACHE_NAME = 'lifetracker-v8';
 const urlsToCache = [
   './',
   './index.html',
   './style.css',
   './app.js',
   './manifest.json',
-  './icon.svg'
+  './icon.svg',
+  './universfield-alarm-clock-ringing-229175.mp3',
+  './universfield-digital-alarm-clock-02-151919.mp3'
 ];
 
 self.addEventListener('install', event => {
