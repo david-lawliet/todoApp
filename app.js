@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
 import { getFirestore, doc, setDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
 
 // TODO: Thay thông tin cấu hình Firebase của bạn vào đây
 const firebaseConfig = {
@@ -18,6 +18,16 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 let currentUser = null;
+
+// Handle redirect login result for mobile
+getRedirectResult(auth).then((result) => {
+    if (result) {
+        console.log("Logged in via redirect");
+    }
+}).catch((error) => {
+    console.error("Lỗi đăng nhập chuyển hướng:", error);
+    alert("Đăng nhập thất bại, vui lòng thử lại.");
+});
 
 // --- State Management ---
 let appData = {
@@ -979,10 +989,7 @@ if (btnLogin) {
         if (currentUser) {
             signOut(auth);
         } else {
-            signInWithPopup(auth, provider).catch(error => {
-                console.error("Lỗi đăng nhập:", error);
-                alert("Đăng nhập thất bại, vui lòng thử lại.");
-            });
+            signInWithRedirect(auth, provider);
         }
     });
 }
