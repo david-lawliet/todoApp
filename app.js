@@ -154,9 +154,12 @@ if ('Notification' in window && Notification.permission !== 'granted' && Notific
 function playAlarm(mode) {
     let soundToPlay = mode === 'pomodoro' ? pomodoroSound : breakSound;
     if (soundToPlay) {
-        // Chuông pomodoro nhẹ hơn (0.6), chuông hết giờ nghỉ to hơn (1.0)
         soundToPlay.volume = mode === 'pomodoro' ? 0.6 : 1.0;
-        soundToPlay.play().catch(e => console.log("Audio play blocked by browser"));
+        soundToPlay.currentTime = 0;
+        let playPromise = soundToPlay.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(e => console.log("Audio play blocked by browser: ", e));
+        }
     }
 
     if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 200, 100, 400]);
@@ -271,8 +274,8 @@ function startTimer() {
     if (isRunning) return;
 
     // Mở khóa âm thanh (Bypass Safari/Chrome Autoplay Policy)
-    if (pomodoroSound) { pomodoroSound.muted = true; pomodoroSound.play().then(() => { pomodoroSound.pause(); pomodoroSound.muted = false; }).catch(() => { }); }
-    if (breakSound) { breakSound.muted = true; breakSound.play().then(() => { breakSound.pause(); breakSound.muted = false; }).catch(() => { }); }
+    if (pomodoroSound) { pomodoroSound.muted = true; pomodoroSound.play().then(() => { pomodoroSound.pause(); pomodoroSound.currentTime = 0; pomodoroSound.muted = false; }).catch(() => { }); }
+    if (breakSound) { breakSound.muted = true; breakSound.play().then(() => { breakSound.pause(); breakSound.currentTime = 0; breakSound.muted = false; }).catch(() => { }); }
 
     isRunning = true;
     timerStatus.innerText = `Đang chạy: ${currentModeType === 'pomodoro' ? 'Pomodoro' : 'Nghỉ ngơi'}`;

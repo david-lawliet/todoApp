@@ -1,4 +1,4 @@
-const CACHE_NAME = 'lifetracker-v10';
+const CACHE_NAME = 'lifetracker-v11';
 const urlsToCache = [
   './',
   './index.html',
