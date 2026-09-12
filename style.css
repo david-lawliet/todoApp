@@ -42,8 +42,6 @@ body {
     min-height: 100vh;
     background-image: none;
     /* App-like behaviors */
-    -webkit-user-select: none;
-    user-select: none;
     overscroll-behavior-y: none;
     -webkit-tap-highlight-color: transparent;
 }
