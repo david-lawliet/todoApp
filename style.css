@@ -541,8 +541,9 @@ header {
 .icon-option input { display: none; }
 .icon-box {
     border: 1px solid var(--border-main); border-radius: var(--radius-md); padding: 12px 8px;
-    display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; transition: 0.2s;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: 0.2s;
     background: var(--bg-main); box-shadow: none;
+    height: 100%;
 }
 .icon-box i { font-size: 1.2rem; color: var(--text-main); }
 .icon-box span { font-size: 0.75rem; color: var(--text-main); text-align: center; font-weight: 600;}
