@@ -1,11 +1,11 @@
-const CACHE_NAME = 'lifetracker-v12';
+const CACHE_NAME = 'lifetracker-v13';
 const urlsToCache = [
   './',
   './index.html',
   './style.css',
   './app.js',
   './manifest.json',
-  './icon.svg',
+  './app-logo.png',
   './universfield-alarm-clock-ringing-229175.mp3',
   './universfield-digital-alarm-clock-02-151919.mp3'
 ];
