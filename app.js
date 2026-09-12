@@ -614,7 +614,15 @@ tabBtns.forEach(btn => {
         tabContents.forEach(c => c.classList.remove('active'));
 
         btn.classList.add('active');
-        document.getElementById(btn.getAttribute('data-target')).classList.add('active');
+        const targetId = btn.getAttribute('data-target');
+        document.getElementById(targetId).classList.add('active');
+        
+        if (targetId === 'tabAnalytics') {
+            // Delay slightly to ensure CSS display block has been applied by browser
+            setTimeout(() => {
+                if (typeof renderAdvancedAnalytics === "function") renderAdvancedAnalytics();
+            }, 10);
+        }
     });
 });
 
