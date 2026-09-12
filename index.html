@@ -92,7 +92,10 @@
                 <div class="glass-panel todo-section">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                         <h2><i class="fa-solid fa-list-check"></i> Đang làm</h2>
-                        <button class="btn btn-primary" id="btnShowAddTaskModalHome" style="padding: 8px 16px; font-size: 0.9rem;"><i class="fa-solid fa-plus"></i></button>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn" id="btnSelectTaskHome" style="padding: 8px 12px; font-size: 0.9rem; background: var(--bg-main); border: 1px solid var(--border-main); color: var(--text-main); border-radius: var(--radius-sm); cursor: pointer;"><i class="fa-solid fa-hand-pointer"></i> Chọn việc</button>
+                            <button class="btn btn-primary" id="btnShowAddTaskModalHome" style="padding: 8px 12px; font-size: 0.9rem;"><i class="fa-solid fa-plus"></i> Thêm mới</button>
+                        </div>
                     </div>
 
                     <div class="todo-stats">
@@ -233,6 +236,21 @@
 
                 <h3 class="modal-section-title">Đã hoàn thành trong ngày</h3>
                 <div id="modalCompletedTasks" class="tm-task-list read-only"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Select Task Modal -->
+    <div class="modal-overlay" id="selectTaskModal">
+        <div class="glass-panel modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2>Chọn công việc có sẵn</h2>
+                <button id="btnCloseSelectTaskModal" class="btn-icon"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div id="selectTaskList" class="tm-task-list" style="max-height: 400px; overflow-y: auto;">
+                    <!-- Available tasks to pick -->
+                </div>
             </div>
         </div>
     </div>

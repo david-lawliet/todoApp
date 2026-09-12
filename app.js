@@ -1006,3 +1006,69 @@ onAuthStateChanged(auth, async (user) => {
         }
     }
 });
+
+// --- Select Task Modal Logic ---
+const btnSelectTaskHome = document.getElementById('btnSelectTaskHome');
+const selectTaskModal = document.getElementById('selectTaskModal');
+const btnCloseSelectTaskModal = document.getElementById('btnCloseSelectTaskModal');
+const selectTaskList = document.getElementById('selectTaskList');
+
+if (btnSelectTaskHome) {
+    btnSelectTaskHome.addEventListener('click', () => {
+        renderSelectTaskList();
+        selectTaskModal.classList.add('active');
+    });
+}
+if (btnCloseSelectTaskModal) {
+    btnCloseSelectTaskModal.addEventListener('click', () => {
+        selectTaskModal.classList.remove('active');
+    });
+}
+
+function renderSelectTaskList() {
+    if (!selectTaskList) return;
+    selectTaskList.innerHTML = '';
+    const pendingTasks = appData.tasks ? appData.tasks.filter(t => t.status === 'Chưa làm') : [];
+    
+    if (pendingTasks.length === 0) {
+        selectTaskList.innerHTML = '<p style="text-align:center; color:var(--text-muted); padding: 20px;">Không có công việc nào đang chờ. Hãy thêm việc mới!</p>';
+        return;
+    }
+
+    pendingTasks.forEach(task => {
+        const item = document.createElement('div');
+        item.className = 'tm-task-item';
+        
+        const iconMap = {
+            'Tài liệu': 'fa-file-lines', 'Mua sắm': 'fa-cart-shopping', 'Học tập': 'fa-book-open',
+            'Sức khỏe': 'fa-heart-pulse', 'Công việc': 'fa-desktop', 'Du lịch': 'fa-plane',
+            'Lịch trình': 'fa-calendar-days', 'Thời gian': 'fa-clock'
+        };
+        const iconClass = iconMap[task.icon] || 'fa-list';
+        
+        item.innerHTML = `
+            <div class="tm-task-icon-wrapper"><i class="fa-solid ${iconClass}"></i></div>
+            <div class="tm-task-details">
+                <div class="tm-task-title">
+                    <span>${task.title}</span>
+                </div>
+                ${task.deadline ? `<div class="tm-task-meta" style="margin-top: 4px;"><span><i class="fa-solid fa-bell"></i> Hạn: ${new Date(task.deadline).toLocaleString('vi-VN')}</span></div>` : ''}
+            </div>
+            <div class="tm-task-actions">
+                <button class="btn btn-primary btn-sm" onclick="startTaskFromSelect('${task.id}')" style="padding: 6px 12px; font-size: 0.85rem;"><i class="fa-solid fa-play"></i> Chọn</button>
+            </div>
+        `;
+        selectTaskList.appendChild(item);
+    });
+}
+
+window.startTaskFromSelect = function(id) {
+    const task = appData.tasks.find(t => t.id === id);
+    if (task) {
+        task.status = 'Đang làm';
+        saveData();
+        renderTmTasks();
+        if (typeof renderTodos === "function") renderTodos();
+        if (selectTaskModal) selectTaskModal.classList.remove('active');
+    }
+}
