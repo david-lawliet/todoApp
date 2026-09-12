@@ -761,8 +761,13 @@ tmAddTaskForm.addEventListener('submit', (e) => {
     const desc = document.getElementById('tmTaskDesc').value;
     const status = document.getElementById('tmTaskStatus').value;
     const priority = document.getElementById('tmTaskPriority').value;
-    const startDate = document.getElementById('tmTaskStartDate').value;
+    const startDateVal = document.getElementById('tmTaskStartDate').value;
+    const startTimeVal = document.getElementById('tmTaskStartTime').value;
     const deadline = document.getElementById('tmTaskDeadline').value;
+
+    let startDate = startDateVal;
+    if (startDateVal && startTimeVal) startDate = `${startDateVal} lúc ${startTimeVal}`;
+    else if (startTimeVal) startDate = startTimeVal;
 
     const newTask = {
         id: 'tm-' + Date.now(),

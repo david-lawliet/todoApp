@@ -323,8 +323,11 @@
 
                     <div class="form-row">
                         <div class="form-group half">
-                            <label>Ngày bắt đầu</label>
-                            <input type="date" id="tmTaskStartDate">
+                            <label>Bắt đầu (Ngày & Giờ)</label>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="date" id="tmTaskStartDate" style="flex: 1;">
+                                <input type="time" id="tmTaskStartTime" style="flex: 1;">
+                            </div>
                         </div>
                         <div class="form-group half">
                             <label>Hạn chót (Tự động)</label>
