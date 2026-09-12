@@ -587,6 +587,8 @@ header {
         border-radius: 16px;
         min-height: 56px;
         line-height: 1.5;
+        width: 100%;
+        min-width: 0;
     }
     .form-actions {
         margin-top: 32px;
