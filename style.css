@@ -562,6 +562,45 @@ header {
     .tm-stats-grid { grid-template-columns: 1fr; }
     .tm-task-item { flex-direction: column; align-items: stretch; }
     .tm-task-actions { align-self: flex-end; margin-top: 8px; }
-    .icon-selector { grid-template-columns: repeat(4, 1fr); }
+    .icon-selector { grid-template-columns: repeat(4, 1fr); gap: 12px; }
     .form-row { flex-direction: column; gap: 0; }
-}.streak-container { display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 1rem; color: var(--text-main); background: var(--bg-card); padding: 6px 12px; border-radius: var(--radius-pill); border: 1px solid var(--border-main); }
+    
+    /* Mobile Form Optimization */
+    .form-group label {
+        font-size: 15px;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+    .form-group {
+        margin-bottom: 24px;
+        gap: 0; 
+    }
+    .form-group input, .form-group textarea, .form-group select {
+        font-size: 16px !important;
+        padding: 14px 16px;
+        border-radius: 12px;
+        min-height: 48px;
+    }
+    .form-actions {
+        margin-top: 24px;
+        gap: 16px;
+    }
+    .form-actions .btn {
+        min-height: 50px;
+        font-size: 16px;
+        font-weight: 700;
+        border-radius: 16px;
+    }
+    .icon-box {
+        padding: 14px 8px;
+        border-radius: 12px;
+    }
+    .icon-box i {
+        font-size: 1.4rem;
+    }
+    .icon-box span {
+        font-size: 0.8rem;
+    }
+}
+
+.streak-container { display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 1rem; color: var(--text-main); background: var(--bg-card); padding: 6px 12px; border-radius: var(--radius-pill); border: 1px solid var(--border-main); }
