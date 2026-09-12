@@ -302,7 +302,7 @@
                         <textarea id="tmTaskDesc" placeholder="Nhập mô tả chi tiết công việc..." rows="3"></textarea>
                     </div>
 
-                    <div class="form-row">
+                    <div class="form-row keep-horizontal">
                         <div class="form-group half">
                             <label>Trạng thái</label>
                             <select id="tmTaskStatus">
@@ -323,15 +323,18 @@
 
                     <div class="form-row">
                         <div class="form-group half">
-                            <label>Bắt đầu (Ngày & Giờ)</label>
-                            <div style="display: flex; gap: 8px;">
+                            <label>Bắt đầu</label>
+                            <div style="display: flex; gap: 12px;">
+                                <input type="time" id="tmTaskStartTime" style="flex: 1; text-align: center;">
                                 <input type="date" id="tmTaskStartDate" style="flex: 1;">
-                                <input type="time" id="tmTaskStartTime" style="flex: 1;">
                             </div>
                         </div>
                         <div class="form-group half">
-                            <label>Hạn chót (Tự động)</label>
-                            <input type="datetime-local" id="tmTaskDeadline">
+                            <label>Hạn chót</label>
+                            <div style="display: flex; gap: 12px;">
+                                <input type="time" id="tmTaskDeadlineTime" style="flex: 1; text-align: center;">
+                                <input type="date" id="tmTaskDeadlineDate" style="flex: 1;">
+                            </div>
                         </div>
                     </div>
 

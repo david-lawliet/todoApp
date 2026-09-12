@@ -763,11 +763,16 @@ tmAddTaskForm.addEventListener('submit', (e) => {
     const priority = document.getElementById('tmTaskPriority').value;
     const startDateVal = document.getElementById('tmTaskStartDate').value;
     const startTimeVal = document.getElementById('tmTaskStartTime').value;
-    const deadline = document.getElementById('tmTaskDeadline').value;
+    const deadlineDateVal = document.getElementById('tmTaskDeadlineDate').value;
+    const deadlineTimeVal = document.getElementById('tmTaskDeadlineTime').value;
 
     let startDate = startDateVal;
     if (startDateVal && startTimeVal) startDate = `${startDateVal} lúc ${startTimeVal}`;
     else if (startTimeVal) startDate = startTimeVal;
+
+    let deadline = deadlineDateVal;
+    if (deadlineDateVal && deadlineTimeVal) deadline = `${deadlineDateVal}T${deadlineTimeVal}`;
+    else if (deadlineDateVal) deadline = `${deadlineDateVal}T23:59`; // default to end of day if only date is selected
 
     const newTask = {
         id: 'tm-' + Date.now(),

@@ -565,6 +565,7 @@ header {
     .tm-task-actions { align-self: flex-end; margin-top: 8px; }
     .icon-selector { grid-template-columns: repeat(4, 1fr); gap: 12px; }
     .form-row { flex-direction: column; gap: 0; }
+    .form-row.keep-horizontal { flex-direction: row; gap: 16px; }
     
     /* Mobile Form Optimization */
     .modal-header h2 {
